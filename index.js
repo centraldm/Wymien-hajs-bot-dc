@@ -108,13 +108,10 @@ client.on(Events.InteractionCreate, async interaction => {
     return `${emoji[method]} ➜ ${emoji[target]} ${methodLabels[target]} — **${procent}%**`;
   });
 
-  const embed = new EmbedBuilder()
-    .setTitle(`Lista Prowizji dla ${methodLabels[method]}`)
-    .setDescription(`${lines.join('
-')}
-
-❗️MINIMALNA PROWIZJA TO 3ZŁ`)
-    .setColor('#ff0000');
+ const embed = new EmbedBuilder()
+  .setTitle(`Lista Prowizji dla ${methodLabels[method]}`)
+  .setDescription(`${lines.join('\n')}\n\n❗️MINIMALNA PROWIZJA TO 3ZŁ`)
+  .setColor('#ff0000');
 
   await interaction.reply({
     embeds: [embed],
