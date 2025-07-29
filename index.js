@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const fs = require('fs');
 const {
@@ -10,7 +9,7 @@ const {
   EmbedBuilder
 } = require('discord.js');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 const prowizje = {
   kodblik: {
@@ -78,12 +77,36 @@ client.once(Events.ClientReady, async () => {
     .setCustomId('wybor_metody')
     .setPlaceholder('Wybierz metodę płatności')
     .addOptions([
-      { label: 'Kod Blik', value: 'kodblik', emoji: '1399694813456109579' },
-      { label: 'BLIK', value: 'blik', emoji: '1399694813456109579' },
-      { label: 'PayPal', value: 'paypal', emoji: '1399694205290418227' },
-      { label: 'Kod Psc', value: 'kodpsc', emoji: '1399695302885245033' },
-      { label: 'My Paysafecard', value: 'mypsc', emoji: '1399695302885245033' },
-      { label: 'Crypto', value: 'crypto', emoji: '1399694890828566540' }
+      {
+        label: 'Kod Blik',
+        value: 'kodblik',
+        emoji: '1399694813456109579'
+      },
+      {
+        label: 'BLIK',
+        value: 'blik',
+        emoji: '1399694813456109579'
+      },
+      {
+        label: 'PayPal',
+        value: 'paypal',
+        emoji: '1399694205290418227'
+      },
+      {
+        label: 'Kod Psc',
+        value: 'kodpsc',
+        emoji: '1399695302885245033'
+      },
+      {
+        label: 'My Paysafecard',
+        value: 'mypsc',
+        emoji: '1399695302885245033'
+      },
+      {
+        label: 'Crypto',
+        value: 'crypto',
+        emoji: '1399694890828566540'
+      }
     ]);
 
   const row = new ActionRowBuilder().addComponents(menu);
@@ -111,7 +134,6 @@ client.once(Events.ClientReady, async () => {
 
 `
     )
-    .setImage('https://cdn.discordapp.com/attachments/1143975767051620435/1399693315502243840/7E3EB9C4-A058-4EC9-A9E4-4BFF578FFB81.jpg?ex=6889ed7b&is=68889bfb&hm=fdb86420174141d579438d2eff72c8880213bcd79dbe35c81b077e6d33718026&')
     .setColor('#ff0000');
 
   const channel = await client.channels.fetch(channelId);
@@ -145,16 +167,15 @@ client.on(Events.InteractionCreate, async interaction => {
   });
 });
 
+const { dodajObslugeOpinii } = require('./opinia.js');
+dodajObslugeOpinii(client);
+
 client.login(process.env.DISCORD_TOKEN);
 
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.send('Bot działa');
-});
-
+app.get('/', (req, res) => res.send('Bot działa'));
 app.listen(PORT, () => {
   console.log(`🌐 Serwer pingowania działa na porcie ${PORT}`);
 });
