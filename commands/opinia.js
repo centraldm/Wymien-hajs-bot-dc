@@ -53,7 +53,7 @@ module.exports = {
     const opinia = interaction.options.getString('opinia');
 
     const embed = new EmbedBuilder()
-      .setColor('#ff0000') // czerwony kolor
+      .setColor('#ff0000') // czerwony
       .setAuthor({
         name: '⭐ WYMIEŃ HAJS × OPINIA',
         iconURL: interaction.user.displayAvatarURL({ dynamic: true })
@@ -70,11 +70,10 @@ module.exports = {
         iconURL: interaction.user.displayAvatarURL({ dynamic: true })
       });
 
-    // finalna odpowiedź, widoczna dla wszystkich, jako użytkownik (nie bot)
     await interaction.reply({
-      content: `APL`, // Możesz zmienić lub usunąć ten tekst
+      content: `<@${interaction.user.id}> APL`, // tag użytkownika + skrót
       embeds: [embed],
-      ephemeral: false, // widoczna dla wszystkich
+      ephemeral: false, // widoczna publicznie
     });
   },
 };
