@@ -58,9 +58,10 @@ const sentFlagPath = 'embed_sent.flag';
 client.once(Events.ClientReady, async () => {
   console.log(`✅ Bot uruchomiony jako ${client.user.tag}`);
 
-  // Tymczasowo pomijamy warunek
-console.log('🔁 Wymuszam wysyłkę embeda — testowo');
-
+if (fs.existsSync(sentFlagPath)) {
+  fs.unlinkSync(sentFlagPath); // usunięcie pliku, żeby ponownie wysłać wiadomość
+  console.log('🗑️ Usunięto embed_sent.flag – wymuszam ponowne wysłanie embeda.');
+}
   const menu = new StringSelectMenuBuilder()
     .setCustomId('wybor_metody')
     .setPlaceholder('Wybierz metodę płatności')
