@@ -70,12 +70,16 @@ module.exports = {
         iconURL: interaction.user.displayAvatarURL({ dynamic: true })
       });
 
-    // Ukrycie odpowiedzi na komendę i wysłanie embeda jako osobna wiadomość
+    // Odpowiedź, żeby Discord nie wywalił błędu
     await interaction.deferReply({ ephemeral: true });
 
+    // Wysłanie embed wiadomości na kanał
     await interaction.channel.send({
       content: `<@${interaction.user.id}> APL`,
       embeds: [embed],
     });
+
+    // Finalna odpowiedź, żeby Discord wiedział że komenda została wykonana
+    await interaction.editReply({ content: '✅ Twoja opinia została wysłana!' });
   },
 };
