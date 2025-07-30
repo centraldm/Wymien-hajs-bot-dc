@@ -1,0 +1,17 @@
+{
+  "name": "wymien-hajs-bot",
+  "version": "1.0.0",
+  "description": "Bot do wymiany hajsu",
+  "main": "index.js",
+  "scripts": {
+    "start": "node deploy-commands.js && node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.13.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
