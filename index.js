@@ -1,10 +1,12 @@
 require('dotenv').config();
 const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const {
   Client,
   GatewayIntentBits,
   Events,
+  Collection,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   EmbedBuilder
@@ -12,6 +14,17 @@ const {
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
+// Ładowanie komend slash z folderu commands
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+  const filePath = path.join(commandsPath, file);
+  const command = require(filePath);
+  client.commands.set(command.data.name, command);
+}
+
+// ----- PROWIZJE -----
 const prowizje = {
   kodblik: { paypal: 7, kodpsc: 12, crypto: 8 },
   blik: { paypal: 4, kodpsc: 9, crypto: 5 },
@@ -69,24 +82,15 @@ client.once(Events.ClientReady, async () => {
     .setDescription(
       `Wybierz metodę, aby zobaczyć dostępne opcje wymiany i prowizje.
 
-` +
-      `**Dostępne metody:**
+**Dostępne metody:**
 
-` +
-      `${emoji.kodblik} Kod Blik
-` +
-      `${emoji.blik} BLIK
-` +
-      `${emoji.paypal} PayPal
-` +
-      `${emoji.kodpsc} Kod Psc
-` +
-      `${emoji.kodpsc} My Paysafecard
-` +
-      `${emoji.crypto} Crypto
-
-`
-    )
+${emoji.kodblik} Kod Blik
+${emoji.blik} BLIK
+${emoji.paypal} PayPal
+${emoji.kodpsc} Kod Psc
+${emoji.kodpsc} My Paysafecard
+${emoji.crypto} Crypto
+`)
     .setImage('https://i.imgur.com/LAABcSv.jpeg')
     .setColor('#ff0000');
 
@@ -98,32 +102,41 @@ client.once(Events.ClientReady, async () => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
-  if (!interaction.isStringSelectMenu()) return;
-  if (interaction.customId !== 'wybor_metody') return;
+  if (interaction.isStringSelectMenu() && interaction.customId === 'wybor_metody') {
+    const method = interaction.values[0];
+    const wymiany = prowizje[method];
 
-  const method = interaction.values[0];
-  const wymiany = prowizje[method];
+    const lines = Object.entries(wymiany).map(([target, procent]) => {
+      return `${emoji[method]} ➜ ${emoji[target]} ${methodLabels[target]} — **${procent}%**`;
+    });
 
-  const lines = Object.entries(wymiany).map(([target, procent]) => {
-    return `${emoji[method]} ➜ ${emoji[target]} ${methodLabels[target]} — **${procent}%**`;
-  });
+    const embed = new EmbedBuilder()
+      .setTitle(`Lista Prowizji dla ${methodLabels[method]}`)
+      .setDescription(`${lines.join('\n')}\n\n❗️MINIMALNA PROWIZJA TO 3ZŁ`)
+      .setColor('#ff0000');
 
-  const embed = new EmbedBuilder()
-    .setTitle(`Lista Prowizji dla ${methodLabels[method]}`)
-    .setDescription(`${lines.join('
-')}
+    await interaction.reply({
+      embeds: [embed],
+      ephemeral: true
+    });
+  }
 
-❗️MINIMALNA PROWIZJA TO 3ZŁ`)
-    .setColor('#ff0000');
-
-  await interaction.reply({
-    embeds: [embed],
-    ephemeral: true
-  });
+  // Obsługa komend slash (/opinia itp.)
+  if (interaction.isChatInputCommand()) {
+    const command = client.commands.get(interaction.commandName);
+    if (!command) return;
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(error);
+      await interaction.reply({ content: '❌ Wystąpił błąd przy wykonaniu komendy.', ephemeral: true });
+    }
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
 
+// Express do pingu
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('Bot działa'));
