@@ -94,9 +94,21 @@ ${emoji.crypto} Crypto
     .setImage('https://i.imgur.com/LAABcSv.jpeg')
     .setColor('#ff0000');
 
+  try {
   const channel = await client.channels.fetch(channelId);
+
+  if (!channel) {
+    console.error(`❌ Nie znaleziono kanału o ID ${channelId}`);
+    return;
+  }
+
   await channel.send({ embeds: [embed], components: [row] });
 
+  fs.writeFileSync(sentFlagPath, 'sent');
+  console.log('✅ Embed wysłany i oznaczony jako wysłany');
+} catch (err) {
+  console.error('❌ Błąd przy wysyłaniu wiadomości z prowizjami:', err);
+}
   fs.writeFileSync(sentFlagPath, 'sent');
   console.log('✅ Embed wysłany i oznaczony jako wysłany');
 });
