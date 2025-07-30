@@ -58,10 +58,8 @@ const sentFlagPath = 'embed_sent.flag';
 client.once(Events.ClientReady, async () => {
   console.log(`✅ Bot uruchomiony jako ${client.user.tag}`);
 
-  if (fs.existsSync(sentFlagPath)) {
-    console.log('⚠️ Wiadomość z embedem została już wcześniej wysłana. Pomijam...');
-    return;
-  }
+  // Tymczasowo pomijamy warunek
+console.log('🔁 Wymuszam wysyłkę embeda — testowo');
 
   const menu = new StringSelectMenuBuilder()
     .setCustomId('wybor_metody')
