@@ -83,7 +83,6 @@ module.exports = {
 
     // Wyślij embed jako użytkownik (nazwa + avatar)
     await webhook.send({
-      content: `APL`,
       username: interaction.user.username,
       avatarURL: interaction.user.displayAvatarURL({ dynamic: true }),
       embeds: [embed],
