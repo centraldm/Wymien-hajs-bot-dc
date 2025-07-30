@@ -65,9 +65,15 @@ module.exports = {
         { name: 'OBSŁUGA KLIENTA:', value: '⭐️'.repeat(Number(obsluga)), inline: false },
       )
       .setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
-      .setFooter({ text: interaction.user.tag });
+      .setFooter({
+        text: `${interaction.user.username} | ${new Date().toLocaleString('pl-PL')}`,
+        iconURL: interaction.user.displayAvatarURL({ dynamic: true })
+      });
 
-    await interaction.reply({
+    // Ukrycie odpowiedzi na komendę i wysłanie embeda jako osobna wiadomość
+    await interaction.deferReply({ ephemeral: true });
+
+    await interaction.channel.send({
       content: `<@${interaction.user.id}> APL`,
       embeds: [embed],
     });
