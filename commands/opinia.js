@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, WebhookClient } = require('discord.js');
+require('dotenv').config(); // jeśli używasz .env
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -52,8 +53,9 @@ module.exports = {
     const obsluga = interaction.options.getString('obsluga_klienta');
     const opinia = interaction.options.getString('opinia');
 
+    // Utwórz embed
     const embed = new EmbedBuilder()
-      .setColor('#ff0000') // czerwony
+      .setColor('#ff0000')
       .setAuthor({
         name: '⭐ WYMIEŃ HAJS × OPINIA',
         iconURL: interaction.user.displayAvatarURL({ dynamic: true })
@@ -70,10 +72,24 @@ module.exports = {
         iconURL: interaction.user.displayAvatarURL({ dynamic: true })
       });
 
-    await interaction.reply({
-      content: `<@${interaction.user.id}> APL`, // tag użytkownika + skrót
-      embeds: [embed],
-      ephemeral: false, // widoczna publicznie
+    // Ukryj odpowiedź interakcji (żeby nie pokazać systemowej komendy)
+    await interaction.deferReply({ ephemeral: true });
+
+    // Skonfiguruj webhooka (ID i TOKEN najlepiej z .env)
+    const webhook = new WebhookClient({
+      id: process.env.WEBHOOK_ID,
+      token: process.env.WEBHOOK_TOKEN,
     });
+
+    // Wyślij embed jako użytkownik (nazwa + avatar)
+    await webhook.send({
+      content: `APL`,
+      username: interaction.user.username,
+      avatarURL: interaction.user.displayAvatarURL({ dynamic: true }),
+      embeds: [embed],
+    });
+
+    // Opcjonalnie: zakończ interakcję prywatną wiadomością
+    await interaction.editReply({ content: 'Opinia została przesłana!', ephemeral: true });
   },
 };
