@@ -5,6 +5,9 @@ const {
   ButtonStyle,
   ActionRowBuilder,
   StringSelectMenuBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } = require('discord.js');
 
 module.exports = {
@@ -117,8 +120,54 @@ module.exports = {
       }
     }
 
-    // Obsługa wyboru z menu ustawień
+    // Obsługa menu wyboru
     if (interaction.isStringSelectMenu()) {
+      // Nowe: wybór opcji z głównego menu (Wymiana / Pomoc)
+      if (interaction.customId === 'ticket_select') {
+        const choice = interaction.values[0];
+
+        if (choice === 'wymiana') {
+          const modal = new ModalBuilder()
+            .setCustomId('ticket_modal')
+            .setTitle('Wymień Hajs');
+
+          const kwotaInput = new TextInputBuilder()
+            .setCustomId('kwota')
+            .setLabel('KWOTA:')
+            .setPlaceholder('Przykład: 100 ( w PLN )')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+          const zCzegoInput = new TextInputBuilder()
+            .setCustomId('z_czego')
+            .setLabel('Z CZEGO:')
+            .setPlaceholder('Przykład: BLIK')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+          const naCoInput = new TextInputBuilder()
+            .setCustomId('na_co')
+            .setLabel('NA CO:')
+            .setPlaceholder('Przykład: PAYPAL')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+          await interaction.showModal(modal.addComponents(
+            new ActionRowBuilder().addComponents(kwotaInput),
+            new ActionRowBuilder().addComponents(zCzegoInput),
+            new ActionRowBuilder().addComponents(naCoInput)
+          ));
+        }
+
+        if (choice === 'pomoc') {
+          await interaction.reply({
+            content: '🆘 Skontaktuj się z administracją w celu uzyskania pomocy.',
+            ephemeral: true,
+          });
+        }
+      }
+
+      // Obsługa menu ustawień
       if (interaction.customId === 'ustawienia_menu') {
         const choice = interaction.values[0];
 
