@@ -1,5 +1,3 @@
-Blacklista
-
 const {
   SlashCommandBuilder,
   EmbedBuilder,
