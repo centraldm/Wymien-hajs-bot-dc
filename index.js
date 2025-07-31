@@ -23,10 +23,6 @@ for (const file of commandFiles) {
   const command = require(filePath);
   client.commands.set(command.data.name, command);
 }
-// Ładowanie komend
-client.commands = new Collection();
-const commandsPath = path.join(__dirname, 'commands');
-// ...
 
 // Ładowanie eventów
 const eventsPath = path.join(__dirname, 'events');
