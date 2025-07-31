@@ -35,7 +35,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor('#ff0000')
-      .setTitle('🏴 Wymien Hajs × Blocklista')
+      .setTitle('🏴‍☠️ Wymień Hajs × Blacklist')
       .setDescription(
         `**NICK:** <@${user.id}>\n` +
         `**ID:** \`${user.id}\`\n\n` +
