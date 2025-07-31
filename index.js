@@ -77,7 +77,7 @@ if (fs.existsSync(sentFlagPath)) {
   const row = new ActionRowBuilder().addComponents(menu);
 
   const embed = new EmbedBuilder()
-    .setTitle('💸 Wymień Hajs x Lista Prowizji')
+    .setTitle('📄 Wymień Hajs x Lista Prowizji')
     .setDescription(
       `Wybierz metodę, aby zobaczyć dostępne opcje wymiany i prowizje.
 
@@ -90,7 +90,7 @@ ${emoji.kodpsc} Kod Psc
 ${emoji.kodpsc} My Paysafecard
 ${emoji.crypto} Crypto
 `)
-    .setImage('https://i.imgur.com/LAABcSv.jpeg')
+    .setImage('https://i.imgur.com/pRmDo7N.jpeg')
     .setColor('#ff0000');
 
   try {
