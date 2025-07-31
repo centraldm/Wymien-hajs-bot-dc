@@ -23,7 +23,23 @@ for (const file of commandFiles) {
   const command = require(filePath);
   client.commands.set(command.data.name, command);
 }
+// Ładowanie komend
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, 'commands');
+// ...
 
+// Ładowanie eventów
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+
+for (const file of eventFiles) {
+  const event = require(path.join(eventsPath, file));
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args));
+  } else {
+    client.on(event.name, (...args) => event.execute(...args));
+  }
+}
 // ----- PROWIZJE -----
 const prowizje = {
   kodblik: { paypal: 7, kodpsc: 12, crypto: 8 },
