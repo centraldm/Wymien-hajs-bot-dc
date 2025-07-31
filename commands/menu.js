@@ -1,9 +1,4 @@
-const {
-  SlashCommandBuilder,
-  ActionRowBuilder,
-  StringSelectMenuBuilder,
-  EmbedBuilder
-} = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -14,7 +9,8 @@ module.exports = {
     const embed = new EmbedBuilder()
       .setTitle('📩 Wymień Hajs × STWÓRZ TICKET')
       .setDescription('Jeżeli chcesz stworzyć ticketa, to wybierz opcję z **poniższego menu.**')
-      .setColor('#ff0000');
+      .setColor('#ff0000')
+      .setImage('https://i.imgur.com/XNg7Y61.jpeg'); // ← Dodany obrazek
 
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId('ticket_select')
@@ -24,7 +20,7 @@ module.exports = {
           label: 'Wymiana',
           value: 'wymiana',
           description: 'Kliknij, aby dokonać wymiany!',
-          emoji: '1400550053596364910', // bez <> i nazwy
+          emoji: '<:exchange:1400550053596364910>',
         },
         {
           label: 'Pomoc',
@@ -39,7 +35,7 @@ module.exports = {
     await interaction.reply({
       embeds: [embed],
       components: [row],
-      ephemeral: false // ustaw na false jeśli ma być publiczne
+      ephemeral: true // tylko Ty widzisz, zmień na false jeśli ma być publiczne
     });
   },
 };
