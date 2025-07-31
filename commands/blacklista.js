@@ -63,7 +63,6 @@ module.exports = {
 await interaction.channel.send({
   embeds: [embed],
   components: [row],
-});
     });
   },
 };
