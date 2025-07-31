@@ -56,8 +56,14 @@ module.exports = {
     );
 
     await interaction.reply({
-      embeds: [embed],
-      components: [row],
+  content: '✅ Użytkownik został dodany do czarnej listy.',
+  ephemeral: true, // <-- To sprawia, że tylko Ty widzisz wiadomość
+});
+
+await interaction.channel.send({
+  embeds: [embed],
+  components: [row],
+});
     });
   },
 };
