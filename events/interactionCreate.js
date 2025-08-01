@@ -22,13 +22,13 @@ module.exports = {
         await command.execute(interaction);
       } catch (error) {
         console.error(error);
-        try {
-          await interaction.reply({
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
             content: '❌ Wystąpił błąd podczas wykonywania komendy.',
             ephemeral: true,
           });
-        } catch {
-          await interaction.followUp({
+        } else {
+          await interaction.reply({
             content: '❌ Wystąpił błąd podczas wykonywania komendy.',
             ephemeral: true,
           });
@@ -36,21 +36,20 @@ module.exports = {
       }
     }
 
-    // Formularz
-    if (interaction.isModalSubmit() && interaction.customId === 'ticket_modal') {
-      const kwota = interaction.fields.getTextInputValue('kwota');
-      const zCzego = interaction.fields.getTextInputValue('z_czego');
-      const naCo = interaction.fields.getTextInputValue('na_co');
-      const otrzymasz = (parseFloat(kwota) * 0.9).toFixed(2);
+    if (interaction.isModalSubmit()) {
+      if (interaction.customId === 'ticket_modal') {
+        const kwota = interaction.fields.getTextInputValue('kwota');
+        const zCzego = interaction.fields.getTextInputValue('z_czego');
+        const naCo = interaction.fields.getTextInputValue('na_co');
+        const otrzymasz = (parseFloat(kwota) * 0.9).toFixed(2);
 
-      try {
         const guild = interaction.guild;
         const user = interaction.user;
 
         const ticketChannel = await guild.channels.create({
           name: `🎫・ticket-${user.username}`,
           type: ChannelType.GuildText,
-          parent: '1399754161511338125', // ID kategorii
+          parent: '1399754161511338125', // ← zmień na właściwy ID kategorii
           permissionOverwrites: [
             {
               id: guild.id,
@@ -65,7 +64,7 @@ module.exports = {
               ],
             },
             {
-              id: '1400736771989569586', // Rola exchanger
+              id: '1400736771989569586', // exchanger role
               allow: [
                 PermissionsBitField.Flags.ViewChannel,
                 PermissionsBitField.Flags.SendMessages,
@@ -103,12 +102,12 @@ module.exports = {
             .setCustomId('przejmij_ticket')
             .setLabel('Przejmij')
             .setStyle(ButtonStyle.Success)
-            .setEmoji({ id: '1400551668134707392' }),
+            .setEmoji('<:przejmij:1400551668134707392>'),
           new ButtonBuilder()
             .setCustomId('ustawienia_ticket')
             .setLabel('Ustawienia')
             .setStyle(ButtonStyle.Secondary)
-            .setEmoji({ id: '1400551685293740042' })
+            .setEmoji('<:ustawienia:1400551685293740042>')
         );
 
         await ticketChannel.send({
@@ -121,16 +120,9 @@ module.exports = {
           content: `✅ Ticket został utworzony: ${ticketChannel}`,
           ephemeral: true,
         });
-      } catch (err) {
-        console.error('Błąd przy tworzeniu ticketa:', err);
-        await interaction.reply({
-          content: '❌ Wystąpił błąd podczas tworzenia ticketa.',
-          ephemeral: true,
-        });
       }
     }
 
-    // Obsługa przycisków
     if (interaction.isButton()) {
       if (interaction.customId === 'przejmij_ticket') {
         await interaction.reply({
@@ -171,18 +163,19 @@ module.exports = {
       }
     }
 
-    // Select menu
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId === 'ticket_select') {
         const choice = interaction.values[0];
 
         if (choice === 'wymiana') {
-          const modal = new ModalBuilder().setCustomId('ticket_modal').setTitle('Wymień Hajs');
+          const modal = new ModalBuilder()
+            .setCustomId('ticket_modal')
+            .setTitle('Wymień Hajs');
 
           const kwotaInput = new TextInputBuilder()
             .setCustomId('kwota')
             .setLabel('KWOTA:')
-            .setPlaceholder('Przykład: 100 ( w PLN )')
+            .setPlaceholder('Przykład: 100 (w PLN)')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
