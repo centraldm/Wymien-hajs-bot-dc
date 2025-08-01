@@ -97,13 +97,13 @@ client.once(Events.ClientReady, async () => {
 
 **Dostępne metody:**
 
-${emoji.kodblik} Kod Blik
-${emoji.blik} BLIK
-${emoji.paypal} PayPal
-${emoji.kodpsc} Kod Psc
-${emoji.kodpsc} My Paysafecard
-${emoji.crypto} Crypto
-`)
+${emoji.kodblik} Kod Blik  
+${emoji.blik} BLIK  
+${emoji.paypal} PayPal  
+${emoji.kodpsc} Kod Psc  
+${emoji.kodpsc} My Paysafecard  
+${emoji.crypto} Crypto`
+    )
     .setImage('https://i.imgur.com/pRmDo7N.jpeg')
     .setColor('#ff0000');
 
@@ -124,38 +124,7 @@ ${emoji.crypto} Crypto
   }
 });
 
-client.on(Events.InteractionCreate, async interaction => {
-  if (interaction.isStringSelectMenu() && interaction.customId === 'wybor_metody') {
-    const method = interaction.values[0];
-    const wymiany = prowizje[method];
-
-    const lines = Object.entries(wymiany).map(([target, procent]) => {
-      return `${emoji[method]} ➜ ${emoji[target]} ${methodLabels[target]} — **${procent}%**`;
-    });
-
-    const embed = new EmbedBuilder()
-      .setTitle(`Lista Prowizji dla ${methodLabels[method]}`)
-      .setDescription(`${lines.join('\n')}\n\n❗️MINIMALNA PROWIZJA TO 3ZŁ`)
-      .setColor('#ff0000');
-
-    await interaction.reply({
-      embeds: [embed],
-      ephemeral: true
-    });
-  }
-
-  // Obsługa komend slash (/opinia itp.)
-  if (interaction.isChatInputCommand()) {
-    const command = client.commands.get(interaction.commandName);
-    if (!command) return;
-    try {
-      await command.execute(interaction);
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({ content: '❌ Wystąpił błąd przy wykonaniu komendy.', ephemeral: true });
-    }
-  }
-});
+// ❌ NIE MA TU JUŻ drugiego client.on(Events.InteractionCreate...) — przeniesione do events/interactionCreate.js
 
 client.login(process.env.DISCORD_TOKEN);
 
