@@ -10,7 +10,7 @@ module.exports = {
       .setTitle('📩 Wymień Hajs × STWÓRZ TICKET')
       .setDescription('Jeżeli chcesz stworzyć ticketa, to wybierz opcję z **poniższego menu.**')
       .setColor('#ff0000')
-      .setImage('https://i.imgur.com/XNg7Y61.jpeg'); // ← Dodany obrazek
+      .setImage('https://i.imgur.com/XNg7Y61.jpeg');
 
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId('ticket_select')
@@ -20,22 +20,29 @@ module.exports = {
           label: 'Wymiana',
           value: 'wymiana',
           description: 'Kliknij, aby dokonać wymiany!',
-          emoji: '<:exchange:1400550053596364910>',
+          emoji: '1400550053596364910', // ID emoji
         },
         {
           label: 'Pomoc',
           value: 'pomoc',
           description: 'Kliknij, aby otrzymać pomoc!',
           emoji: '❗',
-        },
+        }
       );
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
+    // Widoczne dla wszystkich
     await interaction.reply({
       embeds: [embed],
       components: [row],
-      ephemeral: true // tylko Ty widzisz, zmień na false jeśli ma być publiczne
+      ephemeral: false
+    });
+
+    // Potwierdzenie tylko dla użytkownika
+    await interaction.followUp({
+      content: '✅ System ticketów został utworzony.',
+      ephemeral: true
     });
   },
 };
