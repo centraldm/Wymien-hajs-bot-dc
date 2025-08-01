@@ -35,7 +35,7 @@ module.exports = {
     await interaction.reply({
       embeds: [embed],
       components: [row],
-      ephemeral: true // tylko użytkownik widzi
+      ephemeral: false // tylko użytkownik widzi
     });
   },
 };
