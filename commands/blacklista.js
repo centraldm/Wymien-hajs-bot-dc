@@ -55,14 +55,18 @@ module.exports = {
         .setStyle(ButtonStyle.Secondary),
     );
 
-    await interaction.reply({
-  content: '✅ Użytkownik został dodany do czarnej listy.',
-  ephemeral: true, // <-- To sprawia, że tylko Ty widzisz wiadomość
-});
+    // ✅ Bezpieczne odłożenie odpowiedzi
+    await interaction.deferReply({ ephemeral: true });
 
-await interaction.channel.send({
-  embeds: [embed],
-  components: [row],
+    // ✅ Edycja odpowiedzi widocznej tylko dla administratora
+    await interaction.editReply({
+      content: '✅ Użytkownik został dodany do czarnej listy.',
+    });
+
+    // ✅ Publiczne ogłoszenie na kanale
+    await interaction.channel.send({
+      embeds: [embed],
+      components: [row],
     });
   },
 };
