@@ -15,7 +15,6 @@ const {
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction) {
-    // Obsługa komend slash
     if (interaction.isChatInputCommand()) {
       const command = interaction.client.commands.get(interaction.commandName);
       if (!command) return;
@@ -23,31 +22,34 @@ module.exports = {
         await command.execute(interaction);
       } catch (error) {
         console.error(error);
-        const replyData = {
-          content: '❌ Wystąpił błąd podczas wykonywania komendy.',
-          ephemeral: true,
-        };
-        interaction.replied || interaction.deferred
-          ? await interaction.followUp(replyData)
-          : await interaction.reply(replyData);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content: '❌ Wystąpił błąd podczas wykonywania komendy.',
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content: '❌ Wystąpił błąd podczas wykonywania komendy.',
+            ephemeral: true,
+          });
+        }
       }
     }
 
-    // Obsługa formularza (modal)
-    if (interaction.isModalSubmit() && interaction.customId === 'ticket_modal') {
-      const kwota = interaction.fields.getTextInputValue('kwota');
-      const zCzego = interaction.fields.getTextInputValue('z_czego');
-      const naCo = interaction.fields.getTextInputValue('na_co');
-      const otrzymasz = (parseFloat(kwota) * 0.9).toFixed(2);
+    if (interaction.isModalSubmit()) {
+      if (interaction.customId === 'ticket_modal') {
+        const kwota = interaction.fields.getTextInputValue('kwota');
+        const zCzego = interaction.fields.getTextInputValue('z_czego');
+        const naCo = interaction.fields.getTextInputValue('na_co');
+        const otrzymasz = (parseFloat(kwota) * 0.9).toFixed(2);
 
-      const guild = interaction.guild;
-      const user = interaction.user;
+        const guild = interaction.guild;
+        const user = interaction.user;
 
-      try {
         const ticketChannel = await guild.channels.create({
           name: `🎫・ticket-${user.username}`,
           type: ChannelType.GuildText,
-          parent: '1399754161511338125', // ← ustaw ID kategorii
+          parent: '1399754161511338125', // ← zmień na właściwe ID kategorii
           permissionOverwrites: [
             {
               id: guild.id,
@@ -62,7 +64,7 @@ module.exports = {
               ],
             },
             {
-              id: '1400736771989569586', // ID roli Exchanger
+              id: '1400736771989569586', // exchanger role
               allow: [
                 PermissionsBitField.Flags.ViewChannel,
                 PermissionsBitField.Flags.SendMessages,
@@ -81,7 +83,7 @@ module.exports = {
         });
 
         const embed = new EmbedBuilder()
-          .setTitle('💸 Wymień Hajs × WYMIANA')
+          .setTitle('<:exchange:1400550053596364910> Wymień Hajs × WYMIANA')
           .setColor('#00ff00')
           .addFields(
             {
@@ -118,16 +120,9 @@ module.exports = {
           content: `✅ Ticket został utworzony: ${ticketChannel}`,
           ephemeral: true,
         });
-      } catch (err) {
-        console.error('❌ Błąd przy tworzeniu kanału ticketa:', err);
-        await interaction.reply({
-          content: '❌ Wystąpił błąd przy tworzeniu kanału ticketa.',
-          ephemeral: true,
-        });
       }
     }
 
-    // Obsługa przycisków
     if (interaction.isButton()) {
       if (interaction.customId === 'przejmij_ticket') {
         await interaction.reply({
@@ -168,7 +163,6 @@ module.exports = {
       }
     }
 
-    // Obsługa select menu
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId === 'ticket_select') {
         const choice = interaction.values[0];
@@ -181,21 +175,21 @@ module.exports = {
           const kwotaInput = new TextInputBuilder()
             .setCustomId('kwota')
             .setLabel('KWOTA:')
-            .setPlaceholder('Np. 100')
+            .setPlaceholder('Przykład: 100 (w PLN)')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
           const zCzegoInput = new TextInputBuilder()
             .setCustomId('z_czego')
             .setLabel('Z CZEGO:')
-            .setPlaceholder('Np. BLIK')
+            .setPlaceholder('Przykład: BLIK')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
           const naCoInput = new TextInputBuilder()
             .setCustomId('na_co')
             .setLabel('NA CO:')
-            .setPlaceholder('Np. PayPal')
+            .setPlaceholder('Przykład: PAYPAL')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
