@@ -37,7 +37,7 @@ module.exports = {
       }
     }
 
-    // Obsługa modala (formularz zgłoszenia)
+    // Obsługa modala
     if (interaction.isModalSubmit()) {
       if (interaction.customId === 'ticket_modal') {
         const kwota = interaction.fields.getTextInputValue('kwota');
@@ -48,7 +48,6 @@ module.exports = {
         const guild = interaction.guild;
         const user = interaction.user;
 
-        // Tworzenie nowego kanału ticketa
         const ticketChannel = await guild.channels.create({
           name: `🎫・ticket-${user.username}`,
           type: ChannelType.GuildText,
@@ -67,7 +66,7 @@ module.exports = {
               ],
             },
             {
-              id: '1400736771989569586', // rola exchanger
+              id: '1400736771989569586', // Rola exchanger
               allow: [
                 PermissionsBitField.Flags.ViewChannel,
                 PermissionsBitField.Flags.SendMessages,
@@ -105,12 +104,12 @@ module.exports = {
             .setCustomId('przejmij_ticket')
             .setLabel('Przejmij')
             .setStyle(ButtonStyle.Success)
-            .setEmoji('<:przejmij:1400551668134707392>'),
+            .setEmoji('1400551668134707392'), // emoji jako ID
           new ButtonBuilder()
             .setCustomId('ustawienia_ticket')
             .setLabel('Ustawienia')
             .setStyle(ButtonStyle.Secondary)
-            .setEmoji('<:ustawienia:1400551685293740042>')
+            .setEmoji('1400551685293740042')
         );
 
         await ticketChannel.send({
@@ -167,7 +166,7 @@ module.exports = {
       }
     }
 
-    // Obsługa menu wyboru
+    // Obsługa select menu
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId === 'ticket_select') {
         const choice = interaction.values[0];
@@ -178,7 +177,7 @@ module.exports = {
           const kwotaInput = new TextInputBuilder()
             .setCustomId('kwota')
             .setLabel('KWOTA:')
-            .setPlaceholder('Przykład: 100 ( w PLN )')
+            .setPlaceholder('Przykład: 100 (w PLN)')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
@@ -203,6 +202,8 @@ module.exports = {
               new ActionRowBuilder().addComponents(naCoInput)
             )
           );
+
+          return; // ważne!
         }
 
         if (choice === 'pomoc') {
@@ -213,7 +214,6 @@ module.exports = {
         }
       }
 
-      // Menu ustawień
       if (interaction.customId === 'ustawienia_menu') {
         const choice = interaction.values[0];
 
