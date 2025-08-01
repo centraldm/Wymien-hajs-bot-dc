@@ -8,7 +8,7 @@ module.exports = {
   async execute(interaction) {
     const embed = new EmbedBuilder()
       .setTitle('📩 Wymień Hajs × STWÓRZ TICKET')
-      .setDescription('Jeżeli chcesz stworzyć ticketa, to wybierz opcję z **poniższego menu.**')
+      .setDescription('Jeżeli chcesz stworzyć ticketa, wybierz opcję z poniższego menu.')
       .setColor('#ff0000')
       .setImage('https://i.imgur.com/XNg7Y61.jpeg');
 
@@ -20,28 +20,22 @@ module.exports = {
           label: 'Wymiana',
           value: 'wymiana',
           description: 'Kliknij, aby dokonać wymiany!',
-          emoji: '💸', // użyj standardowego emoji
+          emoji: { id: '1400550053596364910' }
         },
         {
           label: 'Pomoc',
           value: 'pomoc',
           description: 'Kliknij, aby otrzymać pomoc!',
-          emoji: '❗',
-        },
+          emoji: '❗'
+        }
       );
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
-    // wysyłamy embed do kanału (wszyscy widzą)
-    await interaction.channel.send({
+    await interaction.reply({
       embeds: [embed],
       components: [row],
-    });
-
-    // potwierdzenie tylko do autora
-    await interaction.reply({
-      content: '✅ System tworzenia ticketów został wysłany.',
-      ephemeral: true,
+      ephemeral: true // tylko użytkownik widzi
     });
   },
 };
