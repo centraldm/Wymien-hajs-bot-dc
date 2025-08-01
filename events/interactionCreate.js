@@ -8,6 +8,8 @@ const {
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
+  ChannelType,
+  PermissionsBitField,
 } = require('discord.js');
 
 module.exports = {
@@ -41,22 +43,62 @@ module.exports = {
         const kwota = interaction.fields.getTextInputValue('kwota');
         const zCzego = interaction.fields.getTextInputValue('z_czego');
         const naCo = interaction.fields.getTextInputValue('na_co');
-
         const otrzymasz = (parseFloat(kwota) * 0.9).toFixed(2);
+
+        const guild = interaction.guild;
+        const user = interaction.user;
+
+        // Tworzenie nowego kanału ticketa
+        const ticketChannel = await guild.channels.create({
+          name: `🎫・ticket-${user.username}`,
+          type: ChannelType.GuildText,
+          parent: '1399754161511338125',
+          permissionOverwrites: [
+            {
+              id: guild.id,
+              deny: [PermissionsBitField.Flags.ViewChannel],
+            },
+            {
+              id: user.id,
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ReadMessageHistory,
+              ],
+            },
+            {
+              id: '1400736771989569586', // rola exchanger
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ReadMessageHistory,
+              ],
+            },
+            {
+              id: interaction.client.user.id,
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ManageChannels,
+              ],
+            },
+          ],
+        });
 
         const embed = new EmbedBuilder()
           .setTitle('💸 Wymień Hajs × WYMIANA')
-          .setColor('#ff0000')
+          .setColor('#00ff00')
           .addFields(
             {
               name: '<:info:1400550505620443216> INFORMACJE O UŻYTKOWNIKU',
-              value: `> PING: ${interaction.user}\n> NICK: ${interaction.user.username}\n> ID: ${interaction.user.id}`,
+              value: `> PING: ${user}\n> NICK: ${user.username}\n> ID: ${user.id}`,
             },
             {
               name: '<:exchange:1400550053596364910> INFORMACJE O WYMIANIE',
               value: `> JAKA KWOTA: ${kwota} PLN\n> Z CZEGO: ${zCzego}\n> NA CO: ${naCo}\n> OTRZYMASZ: ${otrzymasz} PLN`,
             }
-          );
+          )
+          .setImage('https://i.imgur.com/XNg7Y61.jpeg');
 
         const buttons = new ActionRowBuilder().addComponents(
           new ButtonBuilder()
@@ -71,10 +113,15 @@ module.exports = {
             .setEmoji('<:ustawienia:1400551685293740042>')
         );
 
-        await interaction.reply({
-          content: '@everyone',
+        await ticketChannel.send({
+          content: `<@${user.id}>`,
           embeds: [embed],
           components: [buttons],
+        });
+
+        await interaction.reply({
+          content: `✅ Ticket został utworzony: ${ticketChannel}`,
+          ephemeral: true,
         });
       }
     }
@@ -122,14 +169,11 @@ module.exports = {
 
     // Obsługa menu wyboru
     if (interaction.isStringSelectMenu()) {
-      // Nowe: wybór opcji z głównego menu (Wymiana / Pomoc)
       if (interaction.customId === 'ticket_select') {
         const choice = interaction.values[0];
 
         if (choice === 'wymiana') {
-          const modal = new ModalBuilder()
-            .setCustomId('ticket_modal')
-            .setTitle('Wymień Hajs');
+          const modal = new ModalBuilder().setCustomId('ticket_modal').setTitle('Wymień Hajs');
 
           const kwotaInput = new TextInputBuilder()
             .setCustomId('kwota')
@@ -152,11 +196,13 @@ module.exports = {
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
-          await interaction.showModal(modal.addComponents(
-            new ActionRowBuilder().addComponents(kwotaInput),
-            new ActionRowBuilder().addComponents(zCzegoInput),
-            new ActionRowBuilder().addComponents(naCoInput)
-          ));
+          await interaction.showModal(
+            modal.addComponents(
+              new ActionRowBuilder().addComponents(kwotaInput),
+              new ActionRowBuilder().addComponents(zCzegoInput),
+              new ActionRowBuilder().addComponents(naCoInput)
+            )
+          );
         }
 
         if (choice === 'pomoc') {
@@ -167,7 +213,7 @@ module.exports = {
         }
       }
 
-      // Obsługa menu ustawień
+      // Menu ustawień
       if (interaction.customId === 'ustawienia_menu') {
         const choice = interaction.values[0];
 
