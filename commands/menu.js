@@ -2,13 +2,13 @@ const {
   SlashCommandBuilder,
   EmbedBuilder,
   ActionRowBuilder,
-  StringSelectMenuBuilder
+  StringSelectMenuBuilder,
 } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('menu')
-    .setDescription('Wyświetla menu do tworzenia ticketa'),
+    .setDescription('Wyświetla menu tworzenia ticketa'),
 
   async execute(interaction) {
     const embed = new EmbedBuilder()
@@ -25,22 +25,28 @@ module.exports = {
           label: 'Wymiana',
           value: 'wymiana',
           description: 'Rozpocznij wymianę',
-          emoji: '💸'
+          emoji: '💸',
         },
         {
           label: 'Pomoc',
           value: 'pomoc',
           description: 'Skontaktuj się z administracją',
-          emoji: '🆘'
-        }
+          emoji: '🆘',
+        },
       ]);
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
-    await interaction.reply({
+    // Ukryj użycie komendy
+    await interaction.deferReply({ ephemeral: true });
+
+    // Wyślij embed jako wiadomość bota
+    await interaction.channel.send({
       embeds: [embed],
       components: [row],
-      ephemeral: false // Widoczne dla wszystkich
     });
-  }
+
+    // Usuń ephemeral reply
+    await interaction.deleteReply();
+  },
 };
