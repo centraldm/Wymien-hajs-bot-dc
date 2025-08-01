@@ -15,7 +15,6 @@ const {
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction) {
-    // Obsługa komend
     if (interaction.isChatInputCommand()) {
       const command = interaction.client.commands.get(interaction.commandName);
       if (!command) return;
@@ -23,13 +22,13 @@ module.exports = {
         await command.execute(interaction);
       } catch (error) {
         console.error(error);
-        if (interaction.replied || interaction.deferred) {
-          await interaction.followUp({
+        try {
+          await interaction.reply({
             content: '❌ Wystąpił błąd podczas wykonywania komendy.',
             ephemeral: true,
           });
-        } else {
-          await interaction.reply({
+        } catch {
+          await interaction.followUp({
             content: '❌ Wystąpił błąd podczas wykonywania komendy.',
             ephemeral: true,
           });
@@ -37,21 +36,21 @@ module.exports = {
       }
     }
 
-    // Obsługa modala
-    if (interaction.isModalSubmit()) {
-      if (interaction.customId === 'ticket_modal') {
-        const kwota = interaction.fields.getTextInputValue('kwota');
-        const zCzego = interaction.fields.getTextInputValue('z_czego');
-        const naCo = interaction.fields.getTextInputValue('na_co');
-        const otrzymasz = (parseFloat(kwota) * 0.9).toFixed(2);
+    // Formularz
+    if (interaction.isModalSubmit() && interaction.customId === 'ticket_modal') {
+      const kwota = interaction.fields.getTextInputValue('kwota');
+      const zCzego = interaction.fields.getTextInputValue('z_czego');
+      const naCo = interaction.fields.getTextInputValue('na_co');
+      const otrzymasz = (parseFloat(kwota) * 0.9).toFixed(2);
 
+      try {
         const guild = interaction.guild;
         const user = interaction.user;
 
         const ticketChannel = await guild.channels.create({
           name: `🎫・ticket-${user.username}`,
           type: ChannelType.GuildText,
-          parent: '1399754161511338125',
+          parent: '1399754161511338125', // ID kategorii
           permissionOverwrites: [
             {
               id: guild.id,
@@ -104,12 +103,12 @@ module.exports = {
             .setCustomId('przejmij_ticket')
             .setLabel('Przejmij')
             .setStyle(ButtonStyle.Success)
-            .setEmoji('1400551668134707392'), // emoji jako ID
+            .setEmoji({ id: '1400551668134707392' }),
           new ButtonBuilder()
             .setCustomId('ustawienia_ticket')
             .setLabel('Ustawienia')
             .setStyle(ButtonStyle.Secondary)
-            .setEmoji('1400551685293740042')
+            .setEmoji({ id: '1400551685293740042' })
         );
 
         await ticketChannel.send({
@@ -120,6 +119,12 @@ module.exports = {
 
         await interaction.reply({
           content: `✅ Ticket został utworzony: ${ticketChannel}`,
+          ephemeral: true,
+        });
+      } catch (err) {
+        console.error('Błąd przy tworzeniu ticketa:', err);
+        await interaction.reply({
+          content: '❌ Wystąpił błąd podczas tworzenia ticketa.',
           ephemeral: true,
         });
       }
@@ -166,7 +171,7 @@ module.exports = {
       }
     }
 
-    // Obsługa select menu
+    // Select menu
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId === 'ticket_select') {
         const choice = interaction.values[0];
@@ -177,7 +182,7 @@ module.exports = {
           const kwotaInput = new TextInputBuilder()
             .setCustomId('kwota')
             .setLabel('KWOTA:')
-            .setPlaceholder('Przykład: 100 (w PLN)')
+            .setPlaceholder('Przykład: 100 ( w PLN )')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
@@ -202,8 +207,6 @@ module.exports = {
               new ActionRowBuilder().addComponents(naCoInput)
             )
           );
-
-          return; // ważne!
         }
 
         if (choice === 'pomoc') {
