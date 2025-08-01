@@ -1,4 +1,9 @@
-const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
+const {
+  SlashCommandBuilder,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+  EmbedBuilder
+} = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,28 +25,27 @@ module.exports = {
           label: 'Wymiana',
           value: 'wymiana',
           description: 'Kliknij, aby dokonać wymiany!',
-          emoji: '1400550053596364910', // ID emoji
+          emoji: { id: '1400550053596364910' },
         },
         {
           label: 'Pomoc',
           value: 'pomoc',
           description: 'Kliknij, aby otrzymać pomoc!',
           emoji: '❗',
-        }
+        },
       );
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
-    // Widoczne dla wszystkich
-    await interaction.reply({
+    // Najpierw publiczny embed
+    await interaction.channel.send({
       embeds: [embed],
-      components: [row],
-      ephemeral: false
+      components: [row]
     });
 
-    // Potwierdzenie tylko dla użytkownika
-    await interaction.followUp({
-      content: '✅ System ticketów został utworzony.',
+    // Potem potwierdzenie tylko dla Ciebie
+    await interaction.reply({
+      content: '✅ System menu został wysłany!',
       ephemeral: true
     });
   },
