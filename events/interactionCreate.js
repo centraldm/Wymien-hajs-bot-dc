@@ -15,40 +15,25 @@ const {
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction) {
-    // ------------------ /menu COMMAND ------------------
-    if (interaction.isChatInputCommand() && interaction.commandName === 'menu') {
-      const embed = new EmbedBuilder()
-        .setTitle('📨 Wymień Hajs × STWÓRZ TICKET')
-        .setDescription('Jeżeli chcesz stworzyć ticketa, to wybierz opcję z poniższego menu.')
-        .setImage('https://i.imgur.com/XNg7Y61.jpeg')
-        .setColor('#ff0000');
-
-      const select = new StringSelectMenuBuilder()
-        .setCustomId('ticket_select')
-        .setPlaceholder('📩 Wybierz powód utworzenia ticketa')
-        .addOptions(
-          {
-            label: 'Wymiana',
-            description: 'Rozpocznij wymianę',
-            value: 'wymiana',
-            emoji: '💸',
-          },
-          {
-            label: 'Pomoc',
-            description: 'Skontaktuj się z administracją',
-            value: 'pomoc',
-            emoji: '🆘',
-          }
-        );
-
-      const row = new ActionRowBuilder().addComponents(select);
-
-      await interaction.channel.send({ embeds: [embed], components: [row] });
-      await interaction.deleteReply().catch(() => {}); // usuwa "użytkownik używa /menu"
-      return;
+    // Obsługa komend slash
+    if (interaction.isChatInputCommand()) {
+      const command = interaction.client.commands.get(interaction.commandName);
+      if (!command) return;
+      try {
+        await command.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        const replyData = {
+          content: '❌ Wystąpił błąd podczas wykonywania komendy.',
+          ephemeral: true,
+        };
+        interaction.replied || interaction.deferred
+          ? await interaction.followUp(replyData)
+          : await interaction.reply(replyData);
+      }
     }
 
-    // ------------------ MODAL SUBMIT ------------------
+    // Obsługa formularza (modal)
     if (interaction.isModalSubmit() && interaction.customId === 'ticket_modal') {
       const kwota = interaction.fields.getTextInputValue('kwota');
       const zCzego = interaction.fields.getTextInputValue('z_czego');
@@ -58,83 +43,91 @@ module.exports = {
       const guild = interaction.guild;
       const user = interaction.user;
 
-      const ticketChannel = await guild.channels.create({
-        name: `🎫・ticket-${user.username}`,
-        type: ChannelType.GuildText,
-        parent: '1399754161511338125',
-        permissionOverwrites: [
-          {
-            id: guild.id,
-            deny: [PermissionsBitField.Flags.ViewChannel],
-          },
-          {
-            id: user.id,
-            allow: [
-              PermissionsBitField.Flags.ViewChannel,
-              PermissionsBitField.Flags.SendMessages,
-              PermissionsBitField.Flags.ReadMessageHistory,
-            ],
-          },
-          {
-            id: '1400736771989569586',
-            allow: [
-              PermissionsBitField.Flags.ViewChannel,
-              PermissionsBitField.Flags.SendMessages,
-              PermissionsBitField.Flags.ReadMessageHistory,
-            ],
-          },
-          {
-            id: interaction.client.user.id,
-            allow: [
-              PermissionsBitField.Flags.ViewChannel,
-              PermissionsBitField.Flags.SendMessages,
-              PermissionsBitField.Flags.ManageChannels,
-            ],
-          },
-        ],
-      });
+      try {
+        const ticketChannel = await guild.channels.create({
+          name: `🎫・ticket-${user.username}`,
+          type: ChannelType.GuildText,
+          parent: '1399754161511338125', // ← ustaw ID kategorii
+          permissionOverwrites: [
+            {
+              id: guild.id,
+              deny: [PermissionsBitField.Flags.ViewChannel],
+            },
+            {
+              id: user.id,
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ReadMessageHistory,
+              ],
+            },
+            {
+              id: '1400736771989569586', // ID roli Exchanger
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ReadMessageHistory,
+              ],
+            },
+            {
+              id: interaction.client.user.id,
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ManageChannels,
+              ],
+            },
+          ],
+        });
 
-      const embed = new EmbedBuilder()
-        .setTitle('💸 Wymień Hajs × WYMIANA')
-        .setColor('#00ff00')
-        .addFields(
-          {
-            name: '<:info:1400550505620443216> INFORMACJE O UŻYTKOWNIKU',
-            value: `> PING: ${user}\n> NICK: ${user.username}\n> ID: ${user.id}`,
-          },
-          {
-            name: '<:exchange:1400550053596364910> INFORMACJE O WYMIANIE',
-            value: `> JAKA KWOTA: ${kwota} PLN\n> Z CZEGO: ${zCzego}\n> NA CO: ${naCo}\n> OTRZYMASZ: ${otrzymasz} PLN`,
-          }
-        )
-        .setImage('https://i.imgur.com/XNg7Y61.jpeg');
+        const embed = new EmbedBuilder()
+          .setTitle('💸 Wymień Hajs × WYMIANA')
+          .setColor('#00ff00')
+          .addFields(
+            {
+              name: '<:info:1400550505620443216> INFORMACJE O UŻYTKOWNIKU',
+              value: `> PING: ${user}\n> NICK: ${user.username}\n> ID: ${user.id}`,
+            },
+            {
+              name: '<:exchange:1400550053596364910> INFORMACJE O WYMIANIE',
+              value: `> JAKA KWOTA: ${kwota} PLN\n> Z CZEGO: ${zCzego}\n> NA CO: ${naCo}\n> OTRZYMASZ: ${otrzymasz} PLN`,
+            }
+          )
+          .setImage('https://i.imgur.com/XNg7Y61.jpeg');
 
-      const buttons = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId('przejmij_ticket')
-          .setLabel('Przejmij')
-          .setStyle(ButtonStyle.Success)
-          .setEmoji('<:przejmij:1400551668134707392>'),
-        new ButtonBuilder()
-          .setCustomId('ustawienia_ticket')
-          .setLabel('Ustawienia')
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji('<:ustawienia:1400551685293740042>')
-      );
+        const buttons = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId('przejmij_ticket')
+            .setLabel('Przejmij')
+            .setStyle(ButtonStyle.Success)
+            .setEmoji('<:przejmij:1400551668134707392>'),
+          new ButtonBuilder()
+            .setCustomId('ustawienia_ticket')
+            .setLabel('Ustawienia')
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('<:ustawienia:1400551685293740042>')
+        );
 
-      await ticketChannel.send({
-        content: `<@${user.id}>`,
-        embeds: [embed],
-        components: [buttons],
-      });
+        await ticketChannel.send({
+          content: `<@${user.id}>`,
+          embeds: [embed],
+          components: [buttons],
+        });
 
-      await interaction.reply({
-        content: `✅ Ticket został utworzony: ${ticketChannel}`,
-        ephemeral: true,
-      });
+        await interaction.reply({
+          content: `✅ Ticket został utworzony: ${ticketChannel}`,
+          ephemeral: true,
+        });
+      } catch (err) {
+        console.error('❌ Błąd przy tworzeniu kanału ticketa:', err);
+        await interaction.reply({
+          content: '❌ Wystąpił błąd przy tworzeniu kanału ticketa.',
+          ephemeral: true,
+        });
+      }
     }
 
-    // ------------------ BUTTON HANDLERS ------------------
+    // Obsługa przycisków
     if (interaction.isButton()) {
       if (interaction.customId === 'przejmij_ticket') {
         await interaction.reply({
@@ -175,7 +168,7 @@ module.exports = {
       }
     }
 
-    // ------------------ SELECT MENUS ------------------
+    // Obsługa select menu
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId === 'ticket_select') {
         const choice = interaction.values[0];
@@ -188,21 +181,21 @@ module.exports = {
           const kwotaInput = new TextInputBuilder()
             .setCustomId('kwota')
             .setLabel('KWOTA:')
-            .setPlaceholder('Przykład: 100 (w PLN)')
+            .setPlaceholder('Np. 100')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
           const zCzegoInput = new TextInputBuilder()
             .setCustomId('z_czego')
             .setLabel('Z CZEGO:')
-            .setPlaceholder('Przykład: BLIK')
+            .setPlaceholder('Np. BLIK')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
           const naCoInput = new TextInputBuilder()
             .setCustomId('na_co')
             .setLabel('NA CO:')
-            .setPlaceholder('Przykład: PAYPAL')
+            .setPlaceholder('Np. PayPal')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
