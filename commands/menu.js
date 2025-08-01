@@ -39,9 +39,14 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(select);
 
-    await interaction.reply({
+    // Wyślij embed na kanał, ale NIE jako odpowiedź na interakcję
+    const channel = await interaction.channel.send({
       embeds: [embed],
       components: [row],
     });
+
+    // Odpowiedz ephemeral i usuń odpowiedź, żeby Discord nie pokazał „używa /menu”
+    await interaction.deferReply({ ephemeral: true });
+    await interaction.deleteReply().catch(() => {});
   },
 };
