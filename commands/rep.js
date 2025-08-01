@@ -1,14 +1,13 @@
 const {
   SlashCommandBuilder,
   EmbedBuilder,
+  PermissionFlagsBits,
 } = require('discord.js');
 
-// Globalna mapa sesji
+// Mapa do śledzenia, kto wystawił /rep i komu
 const repSessions = new Map();
 
 module.exports = {
-  repSessions, // Eksport mapy do użytku w messageCreate.js
-
   data: new SlashCommandBuilder()
     .setName('rep')
     .setDescription('Wysyła embed legit checka i zamyka ticket')
@@ -26,8 +25,8 @@ module.exports = {
   async execute(interaction) {
     const allowedRoles = ['1393205657087246467', '1400736771989569586'];
     const memberRoles = interaction.member.roles.cache;
-
     const hasPermission = allowedRoles.some(roleId => memberRoles.has(roleId));
+
     if (!hasPermission) {
       return await interaction.reply({
         content: '❌ Nie masz uprawnień do użycia tej komendy.',
@@ -50,28 +49,37 @@ module.exports = {
       );
 
     try {
-      await interaction.channel.send({ embeds: [embed] });
+      // Zapisz sesję rep, by messageCreate mógł ją zidentyfikować
+      repSessions.set(user.id, {
+        ticketChannelId: interaction.channel.id,
+        expiresAt: Date.now() + 10 * 60 * 1000, // 10 minut
+      });
 
-      // Zapisz sesję
-      repSessions.set(user.id, interaction.channel.id);
+      await interaction.channel.send({ embeds: [embed] });
 
       await interaction.deferReply({ ephemeral: true });
       await interaction.deleteReply();
 
-      // Automatyczne usunięcie po 10 minutach
+      // Ustaw awaryjne usunięcie kanału po 10 minutach
       setTimeout(async () => {
-        try {
-          await interaction.channel.delete('Automatyczne zamknięcie ticketu po 10 minutach od /rep');
-        } catch (err) {
-          console.error('❌ Nie udało się usunąć kanału:', err);
+        const session = repSessions.get(user.id);
+        if (session && session.ticketChannelId === interaction.channel.id) {
+          try {
+            await interaction.channel.delete('Automatyczne zamknięcie ticketu po 10 minutach od /rep');
+            repSessions.delete(user.id);
+          } catch (err) {
+            console.error('❌ Nie udało się usunąć kanału po czasie:', err);
+          }
         }
       }, 10 * 60 * 1000);
-    } catch (error) {
-      console.error('❌ Błąd przy wykonaniu komendy /rep:', error);
+    } catch (err) {
+      console.error('❌ Błąd przy komendzie /rep:', err);
       await interaction.reply({
-        content: '❌ Wystąpił błąd przy wysyłaniu wiadomości lub usuwaniu kanału.',
+        content: '❌ Wystąpił błąd przy wykonaniu komendy.',
         ephemeral: true,
       });
     }
   },
+
+  repSessions, // eksport sesji do użycia w messageCreate
 };
