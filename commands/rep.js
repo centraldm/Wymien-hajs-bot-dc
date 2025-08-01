@@ -47,24 +47,21 @@ module.exports = {
       );
 
     try {
-      const targetChannel = await interaction.client.channels.fetch(targetChannelId);
-      if (!targetChannel) throw new Error('Nie można znaleźć kanału docelowego.');
+      // 👇 Wysyłamy embed na kanale, na którym użyto komendy
+      await interaction.channel.send({ embeds: [embed] });
 
-      // Wyślij embed do kanału legit check
-      await targetChannel.send({ embeds: [embed] });
-
-      // Ukryj odpowiedź użytkownika
+      // Ukryj odpowiedź użytkownika (żeby nie było widać „użył /rep”)
       await interaction.deferReply({ ephemeral: true });
       await interaction.deleteReply();
 
-      // Zaplanuj usunięcie kanału po 10 minutach
+      // Usuń kanał po 10 minutach
       setTimeout(async () => {
         try {
           await interaction.channel.delete('Automatyczne zamknięcie ticketu po 10 minutach od /rep');
         } catch (err) {
           console.error('❌ Nie udało się usunąć kanału:', err);
         }
-      }, 10 * 60 * 1000); // 10 minut
+      }, 10 * 60 * 1000);
 
     } catch (error) {
       console.error('❌ Błąd przy wykonaniu komendy /rep:', error);
