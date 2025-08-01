@@ -2,7 +2,7 @@ const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, EmbedBui
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('ticket')
+    .setName('menu')
     .setDescription('Wyślij system tworzenia ticketów'),
 
   async execute(interaction) {
