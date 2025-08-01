@@ -36,6 +36,7 @@ for (const file of eventFiles) {
     client.on(event.name, (...args) => event.execute(...args));
   }
 }
+
 // ----- PROWIZJE -----
 const prowizje = {
   kodblik: { paypal: 7, kodpsc: 12, crypto: 8 },
@@ -70,20 +71,21 @@ const sentFlagPath = 'embed_sent.flag';
 client.once(Events.ClientReady, async () => {
   console.log(`✅ Bot uruchomiony jako ${client.user.tag}`);
 
-if (fs.existsSync(sentFlagPath)) {
-  fs.unlinkSync(sentFlagPath); // usunięcie pliku, żeby ponownie wysłać wiadomość
-  console.log('🗑️ Usunięto embed_sent.flag – wymuszam ponowne wysłanie embeda.');
-}
+  if (fs.existsSync(sentFlagPath)) {
+    fs.unlinkSync(sentFlagPath); // usunięcie pliku, żeby ponownie wysłać wiadomość
+    console.log('🗑️ Usunięto embed_sent.flag – wymuszam ponowne wysłanie embeda.');
+  }
+
   const menu = new StringSelectMenuBuilder()
     .setCustomId('wybor_metody')
     .setPlaceholder('Wybierz metodę płatności')
     .addOptions([
-      { label: 'Kod Blik', value: 'kodblik', emoji: '1399694813456109579' },
-      { label: 'BLIK', value: 'blik', emoji: '1399694813456109579' },
-      { label: 'PayPal', value: 'paypal', emoji: '1399694205290418227' },
-      { label: 'Kod Psc', value: 'kodpsc', emoji: '1399695302885245033' },
-      { label: 'My Paysafecard', value: 'mypsc', emoji: '1399695302885245033' },
-      { label: 'Crypto', value: 'crypto', emoji: '1399694890828566540' }
+      { label: 'Kod Blik', value: 'kodblik', emoji: { id: '1399694813456109579' } },
+      { label: 'BLIK', value: 'blik', emoji: { id: '1399694813456109579' } },
+      { label: 'PayPal', value: 'paypal', emoji: { id: '1399694205290418227' } },
+      { label: 'Kod Psc', value: 'kodpsc', emoji: { id: '1399695302885245033' } },
+      { label: 'My Paysafecard', value: 'mypsc', emoji: { id: '1399695302885245033' } },
+      { label: 'Crypto', value: 'crypto', emoji: { id: '1399694890828566540' } }
     ]);
 
   const row = new ActionRowBuilder().addComponents(menu);
@@ -106,22 +108,20 @@ ${emoji.crypto} Crypto
     .setColor('#ff0000');
 
   try {
-  const channel = await client.channels.fetch(channelId);
+    const channel = await client.channels.fetch(channelId);
 
-  if (!channel) {
-    console.error(`❌ Nie znaleziono kanału o ID ${channelId}`);
-    return;
+    if (!channel) {
+      console.error(`❌ Nie znaleziono kanału o ID ${channelId}`);
+      return;
+    }
+
+    await channel.send({ embeds: [embed], components: [row] });
+
+    fs.writeFileSync(sentFlagPath, 'sent');
+    console.log('✅ Embed wysłany i oznaczony jako wysłany');
+  } catch (err) {
+    console.error('❌ Błąd przy wysyłaniu wiadomości z prowizjami:', err);
   }
-
-  await channel.send({ embeds: [embed], components: [row] });
-
-  fs.writeFileSync(sentFlagPath, 'sent');
-  console.log('✅ Embed wysłany i oznaczony jako wysłany');
-} catch (err) {
-  console.error('❌ Błąd przy wysyłaniu wiadomości z prowizjami:', err);
-}
-  fs.writeFileSync(sentFlagPath, 'sent');
-  console.log('✅ Embed wysłany i oznaczony jako wysłany');
 });
 
 client.on(Events.InteractionCreate, async interaction => {
