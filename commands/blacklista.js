@@ -56,23 +56,32 @@ module.exports = {
     );
 
     try {
-      await interaction.channel.send({
-        embeds: [embed],
-        components: [row],
-      });
-
+      // 🟢 Najpierw odpowiedź do użytkownika (ephemeral)
       await interaction.reply({
         content: '✅ Użytkownik został dodany do czarnej listy.',
         ephemeral: true,
       });
 
-    } catch (error) {
-      console.error('❌ Błąd przy wysyłaniu wiadomości na kanał:', error);
-
-      await interaction.reply({
-        content: '❌ Wystąpił błąd podczas wysyłania wiadomości. Sprawdź uprawnienia bota!',
-        ephemeral: true,
+      // 🟢 Następnie wiadomość publiczna jako followUp (bez błędu 40060)
+      await interaction.followUp({
+        embeds: [embed],
+        components: [row],
       });
+
+    } catch (error) {
+      console.error('❌ Błąd przy wysyłaniu wiadomości:', error);
+
+      if (!interaction.replied) {
+        await interaction.reply({
+          content: '❌ Wystąpił błąd podczas wysyłania wiadomości. Sprawdź uprawnienia bota!',
+          ephemeral: true,
+        });
+      } else {
+        await interaction.followUp({
+          content: '❌ Wystąpił błąd przy wysyłaniu wiadomości na kanał.',
+          ephemeral: true,
+        });
+      }
     }
   },
 };
