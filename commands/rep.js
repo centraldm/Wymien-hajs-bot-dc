@@ -42,15 +42,15 @@ module.exports = {
       .setDescription(
         `Dziękujemy ${user} za skorzystanie z naszych usług.\n` +
         `Prosimy o wystawienie legit checka na kanale: <#${targetChannelId}>\n\n` +
-        `**Wzór:**\n+rep ${user} Exchanged ${transakcja}\n\n` +
+        `**Wzór:**\n+rep @centraldm Exchanged ${transakcja}\n\n` +
         `*Po wystawieniu legit checka ticket zostanie automatycznie zamknięty.*`
       );
 
     try {
-      // 👇 Wysyłamy embed na kanale, na którym użyto komendy
+      // Wyślij embed publicznie na kanale, gdzie użyto /rep
       await interaction.channel.send({ embeds: [embed] });
 
-      // Ukryj odpowiedź użytkownika (żeby nie było widać „użył /rep”)
+      // Ukryj domyślny komunikat „użytkownik użył /rep”
       await interaction.deferReply({ ephemeral: true });
       await interaction.deleteReply();
 
@@ -61,7 +61,7 @@ module.exports = {
         } catch (err) {
           console.error('❌ Nie udało się usunąć kanału:', err);
         }
-      }, 10 * 60 * 1000);
+      }, 10 * 60 * 1000); // 10 minut
 
     } catch (error) {
       console.error('❌ Błąd przy wykonaniu komendy /rep:', error);
