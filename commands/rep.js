@@ -1,10 +1,14 @@
 const {
   SlashCommandBuilder,
   EmbedBuilder,
-  PermissionFlagsBits,
 } = require('discord.js');
 
+// Globalna mapa sesji
+const repSessions = new Map();
+
 module.exports = {
+  repSessions, // Eksport mapy do użytku w messageCreate.js
+
   data: new SlashCommandBuilder()
     .setName('rep')
     .setDescription('Wysyła embed legit checka i zamyka ticket')
@@ -33,7 +37,6 @@ module.exports = {
 
     const user = interaction.options.getUser('użytkownik');
     const transakcja = interaction.options.getString('transakcja');
-
     const targetChannelId = '1286040567221846121';
 
     const embed = new EmbedBuilder()
@@ -47,22 +50,22 @@ module.exports = {
       );
 
     try {
-      // Wyślij embed publicznie na kanale, gdzie użyto /rep
       await interaction.channel.send({ embeds: [embed] });
 
-      // Ukryj domyślny komunikat „użytkownik użył /rep”
+      // Zapisz sesję
+      repSessions.set(user.id, interaction.channel.id);
+
       await interaction.deferReply({ ephemeral: true });
       await interaction.deleteReply();
 
-      // Usuń kanał po 10 minutach
+      // Automatyczne usunięcie po 10 minutach
       setTimeout(async () => {
         try {
           await interaction.channel.delete('Automatyczne zamknięcie ticketu po 10 minutach od /rep');
         } catch (err) {
           console.error('❌ Nie udało się usunąć kanału:', err);
         }
-      }, 10 * 60 * 1000); // 10 minut
-
+      }, 10 * 60 * 1000);
     } catch (error) {
       console.error('❌ Błąd przy wykonaniu komendy /rep:', error);
       await interaction.reply({
