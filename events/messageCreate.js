@@ -1,35 +1,32 @@
 const { Events } = require('discord.js');
-const { repSessions } = require('../commands/rep');
+const path = require('path');
+const { repSessions } = require(path.join(__dirname, '..', 'commands', 'rep'));
 
 module.exports = {
   name: Events.MessageCreate,
   async execute(message) {
+    // Nie działaj na wiadomościach od botów
     if (message.author.bot) return;
 
-    const legitChannelId = '1286040567221846121';
-    if (message.channel.id !== legitChannelId) return;
+    const legitCheckChannelId = '1286040567221846121';
+    if (message.channel.id !== legitCheckChannelId) return;
 
-    const content = message.content.toLowerCase();
-    const expectedPhrase = '+rep @centraldm';
+    for (const [userId, session] of repSessions.entries()) {
+      const repPattern = new RegExp(`\\+rep\\s+<@!?${userId}>|\\+rep\\s+@centraldm`, 'i');
 
-    // Czy wiadomość zawiera frazę?
-    if (!content.includes(expectedPhrase)) return;
+      if (repPattern.test(message.content)) {
+        try {
+          const ticketChannel = await message.client.channels.fetch(session.ticketChannelId);
+          if (ticketChannel) {
+            await ticketChannel.delete('✅ Legit check wystawiony – zamykam ticket');
+          }
+        } catch (err) {
+          console.error('❌ Nie udało się usunąć kanału:', err);
+        }
 
-    const userId = message.author.id;
-
-    // Sprawdź czy mamy aktywną sesję /rep
-    if (!repSessions.has(userId)) return;
-
-    const channelIdToDelete = repSessions.get(userId);
-    repSessions.delete(userId);
-
-    try {
-      const channel = await message.client.channels.fetch(channelIdToDelete);
-      if (channel) {
-        await channel.delete('Kanał zamknięty po wystawieniu legit checka.');
+        repSessions.delete(userId); // Usuń sesję po wykonaniu
+        break;
       }
-    } catch (err) {
-      console.error('❌ Błąd podczas próby usunięcia kanału po legit checku:', err);
     }
   },
 };
