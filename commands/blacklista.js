@@ -4,6 +4,7 @@ const {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
+  PermissionsBitField
 } = require('discord.js');
 
 const ADMIN_ID = '944198199453814834'; // ← 🔴 ZAMIEŃ to na swoje ID użytkownika!
@@ -35,10 +36,10 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor('#ff0000')
-      .setTitle('🏴‍☠️ Wymień Hajs × Blacklist')
+      .setTitle('🏴‍☠️ Wymień Flote × BLACKLISTA')
       .setDescription(
         `**NICK:** <@${user.id}>\n` +
-        `**ID:** \`${user.id}\`\n\n` +
+        `**ID:** ${user.id}\n\n` +
         `**POWÓD:** ${reason}\n\n` +
         `Wystawione przez administratora: ${interaction.user.tag}`
       )
@@ -47,7 +48,7 @@ module.exports = {
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId('usun_blacklist')
-        .setLabel('🗡️ Kliknij, aby usunąć.')
+        .setLabel('❌ Kliknij, aby usunąć.')
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId('odwolaj_blacklist')
@@ -55,15 +56,13 @@ module.exports = {
         .setStyle(ButtonStyle.Secondary),
     );
 
-    // ✅ Bezpieczne odłożenie odpowiedzi
-    await interaction.deferReply({ ephemeral: true });
-
-    // ✅ Edycja odpowiedzi widocznej tylko dla administratora
-    await interaction.editReply({
+    // ✅ Odpowiedź do admina (ephemeral)
+    await interaction.reply({
       content: '✅ Użytkownik został dodany do czarnej listy.',
+      ephemeral: true,
     });
 
-    // ✅ Publiczne ogłoszenie na kanale
+    // 📢 Publiczna wiadomość do kanału
     await interaction.channel.send({
       embeds: [embed],
       components: [row],
