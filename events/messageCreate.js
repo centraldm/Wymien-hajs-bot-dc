@@ -12,8 +12,8 @@ module.exports = {
     if (message.channel.id !== legitCheckChannelId) return;
 
     for (const [userId, session] of repSessions.entries()) {
-      const repPattern = new RegExp(`\\+rep\\s+<@!?${userId}>|\\+rep\\s+@centraldm`, 'i');
-
+      const repPattern = new RegExp(`\\+rep\\s+(<@!?${userId}>|@centraldm)`, 'i');
+      
       if (repPattern.test(message.content)) {
         try {
           const ticketChannel = await message.client.channels.fetch(session.ticketChannelId);
