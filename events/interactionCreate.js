@@ -209,46 +209,56 @@ module.exports = {
       });
     }
 
-    // Obsługa przycisków (ustawienia/przejmij)
-    if (interaction.isButton()) {
-      if (interaction.customId === 'przejmij_ticket') {
-        await interaction.reply({
-          content: `✅ Ticket przejęty przez ${interaction.user.tag}`,
-          ephemeral: true,
-        });
-      }
+   // Obsługa przycisków (ustawienia/przejmij)
+if (interaction.isButton()) {
+  if (interaction.customId === 'przejmij_ticket') {
+    const allowedRoleId = '1400736771989569586';
+    const member = await interaction.guild.members.fetch(interaction.user.id);
 
-      if (interaction.customId === 'ustawienia_ticket') {
-        const menu = new ActionRowBuilder().addComponents(
-          new StringSelectMenuBuilder()
-            .setCustomId('ustawienia_menu')
-            .setPlaceholder('🔧 Wybierz akcję')
-            .addOptions(
-              {
-                label: 'Zamknij ticket',
-                value: 'zamknij',
-                emoji: '🔒',
-              },
-              {
-                label: 'Ustaw status: W TRAKCIE',
-                value: 'w_trakcie',
-                emoji: '🟡',
-              },
-              {
-                label: 'Ustaw status: ZAKOŃCZONY',
-                value: 'zakonczony',
-                emoji: '✅',
-              }
-            )
-        );
-
-        await interaction.reply({
-          content: '🔧 Wybierz jedną z opcji:',
-          components: [menu],
-          ephemeral: true,
-        });
-      }
+    if (!member.roles.cache.has(allowedRoleId)) {
+      return await interaction.reply({
+        content: '❌ Nie masz uprawnień do przejęcia tego ticketu.',
+        ephemeral: true,
+      });
     }
+
+    await interaction.reply({
+      content: `✅ Ticket został przejęty przez ${interaction.user}`,
+      ephemeral: false, // widoczne dla wszystkich w kanale
+    });
+  }
+
+  if (interaction.customId === 'ustawienia_ticket') {
+    const menu = new ActionRowBuilder().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('ustawienia_menu')
+        .setPlaceholder('🔧 Wybierz akcję')
+        .addOptions(
+          {
+            label: 'Zamknij ticket',
+            value: 'zamknij',
+            emoji: '🔒',
+          },
+          {
+            label: 'Ustaw status: W TRAKCIE',
+            value: 'w_trakcie',
+            emoji: '🟡',
+          },
+          {
+            label: 'Ustaw status: ZAKOŃCZONY',
+            value: 'zakonczony',
+            emoji: '✅',
+          }
+        )
+    );
+
+    await interaction.reply({
+      content: '🔧 Wybierz jedną z opcji:',
+      components: [menu],
+      ephemeral: true,
+    });
+  }
+}
 
     // Obsługa zmian statusu ticketu
     if (interaction.isStringSelectMenu() && interaction.customId === 'ustawienia_menu') {
