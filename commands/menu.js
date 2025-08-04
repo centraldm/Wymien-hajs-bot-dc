@@ -12,11 +12,11 @@ module.exports = {
 
   async execute(interaction) {
     const embed = new EmbedBuilder()
-      .setTitle('💌 Wymień Hajs × STWÓRZ TICKET')
+      .setTitle('💌 Wymień Mamond × STWÓRZ TICKET')
       .setDescription(
         'Jeżeli chcesz stworzyć ticketa, wybierz opcję z poniższego menu.'
       )
-      .setColor('#ff0000')
+      .setColor('#00acff')
       .setImage('https://i.imgur.com/XNg7Y61.jpeg');
 
     const select = new StringSelectMenuBuilder()
