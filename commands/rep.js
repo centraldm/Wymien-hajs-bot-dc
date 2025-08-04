@@ -39,8 +39,8 @@ module.exports = {
     const targetChannelId = '1286040567221846121';
 
     const embed = new EmbedBuilder()
-      .setColor('#ff0000')
-      .setTitle('✅ Wymień Hajs × WYSTAW LEGIT CHECKA')
+      .setColor('#00acff')
+      .setTitle('✅ Wymień Mamone × WYSTAW LEGIT CHECKA')
       .setDescription(
         `Dziękujemy ${user} za skorzystanie z naszych usług.\n` +
         `Prosimy o wystawienie legit checka na kanale: <#${targetChannelId}>\n\n` +
