@@ -91,7 +91,7 @@ client.once(Events.ClientReady, async () => {
   const row = new ActionRowBuilder().addComponents(menu);
 
   const embed = new EmbedBuilder()
-    .setTitle('📄 Wymień Hajs x Lista Prowizji')
+    .setTitle('📄 Wymień Mamone x Lista Prowizji')
     .setDescription(
       `Wybierz metodę, aby zobaczyć dostępne opcje wymiany i prowizje.
 
@@ -105,7 +105,7 @@ ${emoji.kodpsc} My Paysafecard
 ${emoji.crypto} Crypto`
     )
     .setImage('https://i.imgur.com/pRmDo7N.jpeg')
-    .setColor('#ff0000');
+    .setColor('#00acff');
 
   try {
     const channel = await client.channels.fetch(channelId);
