@@ -43,7 +43,7 @@ module.exports = {
       .setTitle('✅ Wymień Mamone × WYSTAW LEGIT CHECKA')
       .setDescription(
         `Dziękujemy ${user} za skorzystanie z naszych usług.\n` +
-        `Prosimy o wystawienie legit checka na kanale: <#${targetChannelId}>\n\n` +
+        `Prosimy o wystawienie legit checka na kanale: <#${1401155086864093226}>\n\n` +
         `**Wzór:**\n+rep @centraldm Exchanged ${transakcja}\n\n` +
         `*Po wystawieniu legit checka ticket zostanie automatycznie zamknięty.*`
       );
