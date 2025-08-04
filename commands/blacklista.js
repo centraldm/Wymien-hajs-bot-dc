@@ -34,8 +34,8 @@ module.exports = {
     const reason = interaction.options.getString('powód');
 
     const embed = new EmbedBuilder()
-      .setColor('#ff0000')
-      .setTitle('🏴‍☠️ Wymień Hajs × BLACKLISTA')
+      .setColor('#00acff')
+      .setTitle('🏴‍☠️ Wymień Mamone × BLACKLISTA')
       .setDescription(
         `**NICK:** <@${user.id}>\n` +
         `**ID:** \`${user.id}\`\n\n` +
