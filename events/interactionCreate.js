@@ -182,7 +182,7 @@ module.exports = {
             value: `> JAKA KWOTA: ${kwota} PLN\n> Z CZEGO: ${zCzego}\n> NA CO: ${naCo}\n> OTRZYMASZ: ${otrzymasz} PLN`,
           }
         )
-        .setImage('https://i.imgur.com/XNg7Y61.jpeg');
+        .setImage('https://i.imgur.com/L7EmAVP.jpeg');
 
       const buttons = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
