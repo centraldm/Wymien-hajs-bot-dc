@@ -104,7 +104,7 @@ ${emoji.kodpsc} Kod Psc
 ${emoji.kodpsc} My Paysafecard  
 ${emoji.crypto} Crypto`
     )
-    .setImage('https://i.imgur.com/pRmDo7N.jpeg')
+    .setImage('https://i.imgur.com/XLZklOR.jpeg')
     .setColor('#00acff');
 
   try {
