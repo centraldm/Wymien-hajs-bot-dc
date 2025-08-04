@@ -69,7 +69,7 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setTitle(`📊 Prowizje dla ${methodLabels[method]}`)
         .setDescription(`${lines.join('\n')}\n\n❗️MINIMALNA PROWIZJA TO 3ZŁ`)
-        .setColor('#ff0000');
+        .setColor('#00acff');
 
       await interaction.reply({
         embeds: [embed],
@@ -84,7 +84,7 @@ module.exports = {
       if (choice === 'wymiana') {
         const modal = new ModalBuilder()
           .setCustomId('ticket_modal')
-          .setTitle('Wymień Hajs');
+          .setTitle('Wymień Mamone');
 
         const kwotaInput = new TextInputBuilder()
           .setCustomId('kwota')
@@ -170,8 +170,8 @@ module.exports = {
       });
 
       const embed = new EmbedBuilder()
-        .setTitle('💸 Wymień Hajs × WYMIANA')
-        .setColor('#00ff00')
+        .setTitle('💸 Wymień Mamone × WYMIANA')
+        .setColor('#00acff')
         .addFields(
           {
             name: '<:info:1400550505620443216> INFORMACJE O UŻYTKOWNIKU',
