@@ -36,14 +36,14 @@ module.exports = {
 
     const user = interaction.options.getUser('użytkownik');
     const transakcja = interaction.options.getString('transakcja');
-    const targetChannelId = '1286040567221846121';
+    const targetChannelId = '1401155086864093226';
 
     const embed = new EmbedBuilder()
       .setColor('#00acff')
       .setTitle('✅ Wymień Mamone × WYSTAW LEGIT CHECKA')
       .setDescription(
         `Dziękujemy ${user} za skorzystanie z naszych usług.\n` +
-        `Prosimy o wystawienie legit checka na kanale: <#${1401155086864093226}>\n\n` +
+        `Prosimy o wystawienie legit checka na kanale: <#${targetChannelId}>\n\n` +
         `**Wzór:**\n+rep @centraldm Exchanged ${transakcja}\n\n` +
         `*Po wystawieniu legit checka ticket zostanie automatycznie zamknięty.*`
       );
