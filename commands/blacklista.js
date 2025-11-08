@@ -34,7 +34,7 @@ module.exports = {
     const reason = interaction.options.getString('powód');
 
     const embed = new EmbedBuilder()
-      .setColor('#00acff')
+      .setColor('#083E49')
       .setTitle('🏴‍☠️ WW Exchange × BLACKLISTA')
       .setDescription(
         `**NICK:** <@${user.id}>\n` +
