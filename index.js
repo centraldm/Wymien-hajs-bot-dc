@@ -91,7 +91,7 @@ client.once(Events.ClientReady, async () => {
   const row = new ActionRowBuilder().addComponents(menu);
 
   const embed = new EmbedBuilder()
-    .setTitle('📄 Wymień Mamone x Lista Prowizji')
+    .setTitle('📄 WW EXCHANGE x LISTA PROWIZJI')
     .setDescription(
       `Wybierz metodę, aby zobaczyć dostępne opcje wymiany i prowizje.
 
