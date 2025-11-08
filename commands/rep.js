@@ -39,7 +39,7 @@ module.exports = {
     const targetChannelId = '1401155086864093226';
 
     const embed = new EmbedBuilder()
-      .setColor('#00acff')
+      .setColor('#083E49')
       .setTitle('✅ WW EXCHANGE × WYSTAW LEGIT CHECKA')
       .setDescription(
         `Dziękujemy ${user} za skorzystanie z naszych usług.\n` +
