@@ -35,7 +35,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor('#083E49')
-      .setTitle('🏴‍☠️ WW Exchange × BLACKLISTA')
+      .setTitle('🏴‍☠️ WW EXCHANGE × BLACKLISTA')
       .setDescription(
         `**NICK:** <@${user.id}>\n` +
         `**ID:** \`${user.id}\`\n\n` +
