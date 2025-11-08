@@ -170,7 +170,7 @@ module.exports = {
       });
 
       const embed = new EmbedBuilder()
-        .setTitle('💸 Wymień Mamone × WYMIANA')
+        .setTitle('💸 WW Exchange × WYMIANA')
         .setColor('#00acff')
         .addFields(
           {
