@@ -71,9 +71,14 @@ const sentFlagPath = 'embed_sent.flag';
 client.once(Events.ClientReady, async () => {
   console.log(`✅ Bot uruchomiony jako ${client.user.tag}`);
 
+  // usunięcie flagi żeby embed mógł być wysłany jeszcze raz przy restarcie deploya
   if (fs.existsSync(sentFlagPath)) {
-    fs.unlinkSync(sentFlagPath); // usunięcie pliku, żeby ponownie wysłać wiadomość
-    console.log('🗑️ Usunięto embed_sent.flag – wymuszam ponowne wysłanie embeda.');
+    try {
+      fs.unlinkSync(sentFlagPath);
+      console.log('🗑️ Usunięto embed_sent.flag – wymuszam ponowne wysłanie embeda.');
+    } catch (err) {
+      console.warn('⚠️ Nie udało się usunąć pliku flagi:', err);
+    }
   }
 
   const menu = new StringSelectMenuBuilder()
@@ -115,16 +120,18 @@ ${emoji.crypto} Crypto`
       return;
     }
 
-    await channel.send({ embeds: [embed], components: [row] });
-
-    fs.writeFileSync(sentFlagPath, 'sent');
-    console.log('✅ Embed wysłany i oznaczony jako wysłany');
+    // Wyślij embed tylko jeśli nie oznaczono flagą (re-send safe)
+    if (!fs.existsSync(sentFlagPath)) {
+      await channel.send({ embeds: [embed], components: [row] });
+      fs.writeFileSync(sentFlagPath, 'sent');
+      console.log('✅ Embed wysłany i oznaczony jako wysłany');
+    } else {
+      console.log('ℹ️ Embed już wysłany (flaga obecna).');
+    }
   } catch (err) {
     console.error('❌ Błąd przy wysyłaniu wiadomości z prowizjami:', err);
   }
 });
-
-// ❌ NIE MA TU JUŻ drugiego client.on(Events.InteractionCreate...) — przeniesione do events/interactionCreate.js
 
 client.login(process.env.DISCORD_TOKEN);
 
@@ -132,4 +139,8 @@ client.login(process.env.DISCORD_TOKEN);
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('Bot działa'));
+
+// Health endpoint - ustaw w Render jako /health
+app.get('/health', (req, res) => res.sendStatus(200));
+
 app.listen(PORT, () => console.log(`🌐 Serwer pingowania działa na porcie ${PORT}`));
