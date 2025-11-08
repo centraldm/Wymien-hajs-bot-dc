@@ -56,13 +56,26 @@ module.exports = {
     );
 
     try {
-      // 🟢 Najpierw odpowiedź do użytkownika (ephemeral)
+      // Odpowiedź ephemeral dla admina
       await interaction.reply({
         content: '✅ Użytkownik został dodany do czarnej listy.',
         ephemeral: true,
       });
 
-      // 🟢 Następnie wiadomość publiczna jako followUp (bez błędu 40060)
+      // Spróbuj usunąć ostatnią wiadomość wywołującą tego admina (jeśli istnieje) — przy slash nie ma bezpośredniej wiadomości autora,
+      // więc usuwamy ostatnią zwykłą wiadomość admina w kanale (bezpieczne)
+      try {
+        const channel = interaction.channel;
+        const messages = await channel.messages.fetch({ limit: 10 });
+        const lastByAdmin = messages.find(m => m.author.id === interaction.user.id && !m.interaction);
+        if (lastByAdmin) {
+          await lastByAdmin.delete().catch(() => {});
+        }
+      } catch (err) {
+        // ignorujemy błędy podczas usuwania wiadomości (np. brak uprawnień)
+      }
+
+      // Wstaw embed publicznie
       await interaction.followUp({
         embeds: [embed],
         components: [row],
