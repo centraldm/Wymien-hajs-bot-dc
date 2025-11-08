@@ -8,25 +8,28 @@ module.exports = {
     // Nie działaj na wiadomościach od botów
     if (message.author.bot) return;
 
+    // ID kanału legit check (potwierdzone)
     const legitCheckChannelId = '1286040567221846121';
     if (message.channel.id !== legitCheckChannelId) return;
 
+    // Szukamy, czy autor wiadomości ma otwartą sesję rep (jest właścicielem ticketu)
     for (const [userId, session] of repSessions.entries()) {
-      const repPattern = new RegExp(`\\+rep\\s+(<@!?${userId}>|@centraldm)`, 'i');
-      
-      if (repPattern.test(message.content)) {
-        try {
-          const ticketChannel = await message.client.channels.fetch(session.ticketChannelId);
-          if (ticketChannel) {
-            await ticketChannel.delete('✅ Legit check wystawiony – zamykam ticket');
-          }
-        } catch (err) {
-          console.error('❌ Nie udało się usunąć kanału:', err);
-        }
+      // akceptujemy +rep rozpoczęte tym prefiksem i musimy upewnić się, że autorem jest właściciel
+      if (message.author.id !== userId) continue;
+      if (!message.content.trim().toLowerCase().startsWith('+rep')) continue;
 
-        repSessions.delete(userId); // Usuń sesję po wykonaniu
-        break;
+      try {
+        const ticketChannel = await message.client.channels.fetch(session.ticketChannelId);
+        if (ticketChannel) {
+          await ticketChannel.send(`✅ Legit check wystawiony przez <@${userId}> — zamykam ticket za 10 sekund.`);
+          setTimeout(() => ticketChannel.delete().catch(() => {}), 10000);
+        }
+      } catch (err) {
+        console.error('❌ Nie udało się zamknąć ticketa po +rep:', err);
       }
+
+      repSessions.delete(userId);
+      break;
     }
   },
 };
