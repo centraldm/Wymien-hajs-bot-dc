@@ -88,22 +88,22 @@ module.exports = {
 
         const kwotaInput = new TextInputBuilder()
           .setCustomId('kwota')
-          .setLabel('KWOTA:')
-          .setPlaceholder('Przykład: 100 (w PLN)')
+          .setLabel('Kwota:')
+          .setPlaceholder('np. 100 (podaj w PLN - sama liczba)')
           .setStyle(TextInputStyle.Short)
           .setRequired(true);
 
         const zCzegoInput = new TextInputBuilder()
           .setCustomId('z_czego')
-          .setLabel('Z CZEGO:')
-          .setPlaceholder('Przykład: BLIK')
+          .setLabel('Z Czego:')
+          .setPlaceholder('np. BLIK')
           .setStyle(TextInputStyle.Short)
           .setRequired(true);
 
         const naCoInput = new TextInputBuilder()
           .setCustomId('na_co')
-          .setLabel('NA CO:')
-          .setPlaceholder('Przykład: PAYPAL')
+          .setLabel('Na Co:')
+          .setPlaceholder('np. LTC')
           .setStyle(TextInputStyle.Short)
           .setRequired(true);
 
@@ -136,7 +136,7 @@ module.exports = {
       const ticketChannel = await guild.channels.create({
         name: `🎫・ticket-${user.username}`,
         type: ChannelType.GuildText,
-        parent: '1399754161511338125', // <-- ID kategorii
+        parent: '1399754161511338125', // <-- ID kategorii (potwierdzone)
         permissionOverwrites: [
           {
             id: guild.id,
@@ -151,7 +151,7 @@ module.exports = {
             ],
           },
           {
-            id: '1400736771989569586', // Rola exchangerów
+            id: '1400736771989569586', // Rola exchangerów (potwierdzone)
             allow: [
               PermissionsBitField.Flags.ViewChannel,
               PermissionsBitField.Flags.SendMessages,
@@ -169,17 +169,20 @@ module.exports = {
         ],
       });
 
+      // Zapisanie właściciela i placeholder dla claimedBy w topic
+      await ticketChannel.setTopic(`ownerId=${user.id};claimedBy=null`);
+
       const embed = new EmbedBuilder()
         .setTitle('💸 WW Exchange × WYMIANA')
         .setColor('#00acff')
         .addFields(
           {
             name: '<:info:1400550505620443216> INFORMACJE O UŻYTKOWNIKU',
-            value: `> PING: ${user}\n> NICK: ${user.username}\n> ID: ${user.id}`,
+            value: `> Ping: ${user}\n> Nick: ${user.username}\n> ID: ${user.id}`,
           },
           {
             name: '<:exchange:1400550053596364910> INFORMACJE O WYMIANIE',
-            value: `> JAKA KWOTA: ${kwota} PLN\n> Z CZEGO: ${zCzego}\n> NA CO: ${naCo}\n> OTRZYMASZ: ${otrzymasz} PLN`,
+            value: `> Jaka Kwota: ${kwota} PLN\n> Z Czego: ${zCzego}\n> Na Co: ${naCo}\n> Otrzymasz: ${otrzymasz} PLN`,
           }
         )
         .setImage('https://i.imgur.com/PbWh1yJ.jpeg');
@@ -197,71 +200,127 @@ module.exports = {
           .setEmoji('<:ustawienia:1400551685293740042>')
       );
 
-      await ticketChannel.send({
+      // Wyślij wiadomość i zapisz ją — potrzebne do późniejszej edycji komponentów
+      const ticketMessage = await ticketChannel.send({
         content: `<@${user.id}>`,
         embeds: [embed],
         components: [buttons],
       });
 
+      // Zwróć info tworzącemu (ephemeral)
       await interaction.reply({
         content: `✅ Ticket został utworzony: ${ticketChannel}`,
         ephemeral: true,
       });
     }
 
-   // Obsługa przycisków (ustawienia/przejmij)
-if (interaction.isButton()) {
-  if (interaction.customId === 'przejmij_ticket') {
-    const allowedRoleId = '1400736771989569586';
-    const member = await interaction.guild.members.fetch(interaction.user.id);
+    // Obsługa przycisków (przejmij / ustawienia)
+    if (interaction.isButton()) {
+      const EXCHANGER_ROLE_ID = '1400736771989569586';
+      // Jeśli przycisk kliknięty przez osobę bez roli exchanger — nic się nie dzieje (deferUpdate)
+      if (!interaction.member.roles.cache.has(EXCHANGER_ROLE_ID) && (interaction.customId === 'przejmij_ticket' || interaction.customId === 'ustawienia_ticket')) {
+        await interaction.deferUpdate().catch(() => {});
+        return;
+      }
 
-    if (!member.roles.cache.has(allowedRoleId)) {
-      return await interaction.reply({
-        content: '❌ Nie masz uprawnień do przejęcia tego ticketu.',
-        ephemeral: true,
-      });
+      // PRZEJMIJ TICKET - jednorazowo
+      if (interaction.customId === 'przejmij_ticket') {
+        const { channel, user } = interaction;
+
+        // Odczytaj topic i właściciela
+        const topic = channel.topic || '';
+        const ownerMatch = topic.match(/ownerId=(\d+)/);
+        const claimedMatch = topic.match(/claimedBy=(\d+|null)/);
+        const ownerId = ownerMatch ? ownerMatch[1] : null;
+        const claimedBy = claimedMatch ? claimedMatch[1] : 'null';
+
+        // Jeśli już przejęty (claimedBy !== null)
+        if (claimedBy && claimedBy !== 'null') {
+          return await interaction.reply({ content: '❌ Ten ticket został już przejęty.', ephemeral: true });
+        }
+
+        // ustawiamy claimedBy w topic
+        const newTopic = topic.replace(/claimedBy=null/, `claimedBy=${user.id}`);
+        await channel.setTopic(newTopic).catch(() => {});
+
+        // Ukrywamy kanał dla wszystkich exchangerów (rola) aby inni nie widzieli
+        await channel.permissionOverwrites.edit(EXCHANGER_ROLE_ID, {
+          ViewChannel: false,
+        }).catch(console.error);
+
+        // Dajemy dostęp indywidualny przejmującemu
+        await channel.permissionOverwrites.edit(user.id, {
+          ViewChannel: true,
+          SendMessages: true,
+          ReadMessageHistory: true,
+        }).catch(console.error);
+
+        // Upewnij się, że owner widzi
+        if (ownerId) {
+          await channel.permissionOverwrites.edit(ownerId, {
+            ViewChannel: true,
+            SendMessages: true,
+            ReadMessageHistory: true,
+          }).catch(console.error);
+        }
+
+        // Usuń komponenty z oryginalnej wiadomości (zapobiegamy kolejnym kliknięciom)
+        try {
+          // znajdź ostatnią wiadomość bota w kanale z komponentami
+          const messages = await channel.messages.fetch({ limit: 20 });
+          const botMsg = messages.find(m => m.author.id === interaction.client.user.id && m.components && m.components.length > 0);
+          if (botMsg) {
+            await botMsg.edit({ components: [] }).catch(() => {});
+          }
+        } catch (err) {
+          console.error('❌ Nie udało się edytować wiadomości z przyciskami:', err);
+        }
+
+        return await interaction.reply({ content: `✅ Ticket został przejęty przez ${user}.`, ephemeral: false });
+      }
+
+      // USTAWIENIA TICKET - MENU (tylko exchanger)
+      if (interaction.customId === 'ustawienia_ticket') {
+        const menu = new ActionRowBuilder().addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('ustawienia_menu')
+            .setPlaceholder('🔧 Wybierz akcję')
+            .addOptions(
+              {
+                label: 'Zamknij ticket',
+                value: 'zamknij',
+                emoji: '🔒',
+              },
+              {
+                label: 'Ustaw status: W TRAKCIE',
+                value: 'w_trakcie',
+                emoji: '🟡',
+              },
+              {
+                label: 'Ustaw status: ZAKOŃCZONY',
+                value: 'zakonczony',
+                emoji: '✅',
+              }
+            )
+        );
+
+        await interaction.reply({
+          content: '🔧 Wybierz jedną z opcji:',
+          components: [menu],
+          ephemeral: true,
+        });
+      }
     }
 
-    await interaction.reply({
-      content: `✅ Ticket został przejęty przez ${interaction.user}`,
-      ephemeral: false, // widoczne dla wszystkich w kanale
-    });
-  }
-
-  if (interaction.customId === 'ustawienia_ticket') {
-    const menu = new ActionRowBuilder().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId('ustawienia_menu')
-        .setPlaceholder('🔧 Wybierz akcję')
-        .addOptions(
-          {
-            label: 'Zamknij ticket',
-            value: 'zamknij',
-            emoji: '🔒',
-          },
-          {
-            label: 'Ustaw status: W TRAKCIE',
-            value: 'w_trakcie',
-            emoji: '🟡',
-          },
-          {
-            label: 'Ustaw status: ZAKOŃCZONY',
-            value: 'zakonczony',
-            emoji: '✅',
-          }
-        )
-    );
-
-    await interaction.reply({
-      content: '🔧 Wybierz jedną z opcji:',
-      components: [menu],
-      ephemeral: true,
-    });
-  }
-}
-
-    // Obsługa zmian statusu ticketu
+    // Obsługa zmian statusu ticketu (ustawienia_menu)
     if (interaction.isStringSelectMenu() && interaction.customId === 'ustawienia_menu') {
+      const EXCHANGER_ROLE_ID = '1400736771989569586';
+      // verify role again (safety)
+      if (!interaction.member.roles.cache.has(EXCHANGER_ROLE_ID)) {
+        await interaction.deferUpdate().catch(() => {});
+        return;
+      }
+
       const choice = interaction.values[0];
 
       if (choice === 'zamknij') {
