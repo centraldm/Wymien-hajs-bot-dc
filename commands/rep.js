@@ -40,7 +40,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor('#00acff')
-      .setTitle('✅ Wymień Mamone × WYSTAW LEGIT CHECKA')
+      .setTitle('✅ WW EXCHANGE × WYSTAW LEGIT CHECKA')
       .setDescription(
         `Dziękujemy ${user} za skorzystanie z naszych usług.\n` +
         `Prosimy o wystawienie legit checka na kanale: <#${targetChannelId}>\n\n` +
