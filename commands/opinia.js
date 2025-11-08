@@ -55,7 +55,7 @@ module.exports = {
 
     // Utwórz embed
     const embed = new EmbedBuilder()
-      .setColor('#00acff')
+      .setColor('#083E49')
       .setAuthor({
         name: '⭐ WW EXCHANGE × OPINIA',
         iconURL: interaction.user.displayAvatarURL({ dynamic: true })
