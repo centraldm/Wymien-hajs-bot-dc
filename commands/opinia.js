@@ -57,7 +57,7 @@ module.exports = {
     const embed = new EmbedBuilder()
       .setColor('#00acff')
       .setAuthor({
-        name: '⭐ WYMIEŃ MAMONE × OPINIA',
+        name: '⭐ WW EXCHANGE × OPINIA',
         iconURL: interaction.user.displayAvatarURL({ dynamic: true })
       })
       .setDescription(`\`\`\`${opinia}\`\`\``)
