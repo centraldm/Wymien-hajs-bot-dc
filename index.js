@@ -104,8 +104,8 @@ ${emoji.kodpsc} Kod Psc
 ${emoji.kodpsc} My Paysafecard  
 ${emoji.crypto} Crypto`
     )
-    .setImage('https://i.imgur.com/XLZklOR.jpeg')
-    .setColor('#00acff');
+    .setImage('https://i.imgur.com/gnBQ6oq.jpeg')
+    .setColor('#083E49');
 
   try {
     const channel = await client.channels.fetch(channelId);
