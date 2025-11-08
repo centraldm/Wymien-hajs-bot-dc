@@ -14,9 +14,9 @@ module.exports = {
   async execute(interaction) {
     const embed = new EmbedBuilder()
       .setColor('#00acff')
-      .setTitle('✅ WYMIEŃ MAMONE × WERYFIKACJA')
+      .setTitle('✅ WW EXCHANGE × WERYFIKACJA')
       .setDescription('**Zweryfikuj się**  aby nie stracić **naszego serwera.**')
-      .setImage('https://i.imgur.com/Eaz5OON.jpeg') // <-- Podmień na swój banner
+      .setImage('https://i.imgur.com/7dRq9dF.jpeg') // <-- Podmień na swój banner
       .setTimestamp();
 
     const button = new ButtonBuilder()
