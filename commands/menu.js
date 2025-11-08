@@ -12,7 +12,7 @@ module.exports = {
 
   async execute(interaction) {
     const embed = new EmbedBuilder()
-      .setTitle('💌 Wymień Mamone × STWÓRZ TICKET')
+      .setTitle('💌 WW Exchange × STWÓRZ TICKET')
       .setDescription(
         'Jeżeli chcesz stworzyć ticketa, wybierz opcję z poniższego menu.'
       )
