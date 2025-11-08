@@ -16,8 +16,8 @@ module.exports = {
       .setDescription(
         'Jeżeli chcesz stworzyć ticketa, wybierz opcję z poniższego menu.'
       )
-      .setColor('#00acff')
-      .setImage('https://i.imgur.com/L7EmAVP.jpeg');
+      .setColor('#083E49')
+      .setImage('https://i.imgur.com/PbWh1yJ.jpeg');
 
     const select = new StringSelectMenuBuilder()
       .setCustomId('ticket_select')
