@@ -13,7 +13,7 @@ module.exports = {
 
   async execute(interaction) {
     const embed = new EmbedBuilder()
-      .setColor('#00acff')
+      .setColor('#083E49')
       .setTitle('✅ WW EXCHANGE × WERYFIKACJA')
       .setDescription('**Zweryfikuj się**  aby nie stracić **naszego serwera.**')
       .setImage('https://i.imgur.com/7dRq9dF.jpeg') // <-- Podmień na swój banner
